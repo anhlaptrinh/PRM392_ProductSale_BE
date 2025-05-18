@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: jpa
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/SalesAppDB}
+    username: ${MYSQL_ADMIN_USER:root}
+    password: ${MYSQL_ADMIN_PASS:123456}
+  jpa:
+    hibernate:
+      ddl-auto: none
