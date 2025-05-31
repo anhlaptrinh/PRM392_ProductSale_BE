@@ -4,38 +4,41 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Entity(name = "Users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level= AccessLevel.PRIVATE)
 public class UserEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int UserID;
+  int UserID;
 
   @Column(name = "Username")
-  private String username;
+  String username;
 
   @Size(min = 8,message = "INVALID_PASSWORD")
   @Column(name = "PasswordHash")
-  private String password;
+  String password;
 
   @Email(message = "Email is incorrect!")
   @NotBlank(message = "Email is not blank!")
   @Size(max = 255, message = "Email, max is 255")
   @Column(name = "Email")
-  private String email;
+  String email;
 
   @Column(name = "PhoneNumber")
-  private String phoneNumber;
+  String phoneNumber;
 
   @Column(name = "Address")
-  private String address;
+  String address;
 
   @Column(name = "Role")
-  private String role;
+  String role;
 }

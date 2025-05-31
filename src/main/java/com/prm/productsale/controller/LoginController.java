@@ -1,9 +1,12 @@
 package com.prm.productsale.controller;
 
+import com.prm.productsale.dto.request.UserRequest;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.response.BaseResponse;
 import com.prm.productsale.services.LoginServices;
+import com.prm.productsale.services.MailServicesImp;
+import com.prm.productsale.services.UserServicesImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +28,13 @@ import java.util.Objects;
 public class LoginController {
   @Autowired
   private LoginServices loginServices;
+  @Autowired
+  private UserServicesImp userServicesImp;
+  @Autowired
+  private MailServicesImp mailServicesImp;
 
 
+  // Login
   @Operation(
           summary = "User Login",
           description = "Authenticate user with email and password to receive a JWT token",
@@ -60,5 +69,60 @@ public class LoginController {
     response.setCode(200);
 
     return ResponseEntity.ok(response);
+  }
+
+
+  // Resister
+  @Operation(
+          summary = "User resister",
+          description = "GUEST can resister",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Resister successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PostMapping("/register")
+  public ResponseEntity<?> register(@RequestBody UserRequest request, @RequestParam String verificationCode){
+    userServicesImp.register(request, verificationCode);
+    BaseResponse response = new BaseResponse();
+    response.setCode(200);
+    response.setMessage("Resister successful");
+    return ResponseEntity.ok(response);
+  }
+
+  // Send Verification to Resister
+  @Operation(
+          summary = "Send Verification Code API",
+          description = "Send Verification Code",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Sent verification code successfully",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PostMapping("/verification-code")
+  public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
+    BaseResponse response = new BaseResponse();
+    try {
+      mailServicesImp.sendVerificationEmail(email);
+      response.setCode(200);
+      response.setMessage("Sent verification code successfully");
+      return ResponseEntity.ok(response);
+    } catch (MessagingException e) {
+      response.setCode(400);
+      response.setMessage("Error sending email: " + e.getMessage());
+      return ResponseEntity.ok(response);
+    }
   }
 }

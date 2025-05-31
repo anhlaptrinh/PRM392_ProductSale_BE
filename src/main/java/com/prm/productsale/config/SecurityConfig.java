@@ -40,6 +40,7 @@ public class SecurityConfig {
           "/api/authentication/login",
           "/api/authentication/forgot-password",
           "/api/authentication/register",
+          "/api/authentication/verification-code",
 
 
   };
