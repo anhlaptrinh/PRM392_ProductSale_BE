@@ -8,3 +8,24 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+      #Name of column in entity is equal with name in mysql
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 10MB
+
+jwt:
+  key: N3XlRl/GXHuZo2oepmSjKopRTYGGZAX7NhMEyrE3LxQYUbep/6cxK4siBnKwLUL5
+
+upload:
+  path: C:\Users\DELL\Desktop\images
+
+openapi:
+  service:
+    api-docs: api-service
+    server: http://localhost:8080
+    title: API Service
+    version: 1.0.0
