@@ -125,4 +125,31 @@ public class LoginController {
       return ResponseEntity.ok(response);
     }
   }
+
+  // Forgot Password User API
+  @Operation(
+          summary = "User Forgot Password",
+          description = "Reset Password",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Reset password successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class),
+                                  examples = @ExampleObject(
+                                          name = "Success Response",
+                                          value = "{\n  \"code\": 200,\n  \"message\": \"Reset password successful\",\n  \"data\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+                                  )
+                          )
+                  ),
+          }
+  )
+  @PostMapping("/forgot-password")
+  public ResponseEntity<?> forgotPassword(@RequestParam String email){
+    userServicesImp.forgotPassword(email);
+    BaseResponse response = new BaseResponse();
+    response.setMessage("Your Password is reset Check your mail");
+    return ResponseEntity.ok(response);
+  }
 }
