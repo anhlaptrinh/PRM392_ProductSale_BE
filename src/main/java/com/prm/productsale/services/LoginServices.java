@@ -4,11 +4,10 @@ package com.prm.productsale.services;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.swd.pregnancycare.entity.UserEntity;
-import com.swd.pregnancycare.exception.AppException;
-import com.swd.pregnancycare.exception.ErrorCode;
-import com.swd.pregnancycare.repository.RoleRepo;
-import com.swd.pregnancycare.repository.UserRepo;
+import com.prm.productsale.entity.UserEntity;
+import com.prm.productsale.exception.AppException;
+import com.prm.productsale.exception.ErrorCode;
+import com.prm.productsale.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,15 +29,13 @@ public class LoginServices  {
   private UserRepo userRepo;
   @Autowired
   private PasswordEncoder passwordEncoder;
-  @Autowired
-  private RoleRepo roleRepo;
   @Value("${jwt.key}")
   private String keyjwt;
 
   public String login(String email, String password){
     SecurityContextHolder.clearContext();
     String token="";
-    Optional<UserEntity> user = userRepo.findByEmailAndStatusTrue(email);
+    Optional<UserEntity> user = userRepo.findByEmail(email);
     if(user.isPresent()){
       UserEntity userEntity = user.get();
 
@@ -52,7 +49,7 @@ public class LoginServices  {
     JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
     JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
             .subject(user.getEmail())
-            .issuer("pregnancy.com")
+            .issuer("productsale.com")
             .issueTime(new Date())
             .expirationTime(new Date(
                     Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
@@ -68,18 +65,19 @@ public class LoginServices  {
       throw new RuntimeException(e);
     }
   }
+
   private String buildScope(UserEntity user){
     StringJoiner stringJoiner = new StringJoiner("");
-    if (user.getRole() != null && user.getRole().getName() != null) {
-      stringJoiner.add(user.getRole().getName()); // Thêm tên role của user vào chuỗi
+    if (user.getRole() != null ) {
+      stringJoiner.add(user.getRole()); // Thêm tên role của user vào chuỗi
     }
     return stringJoiner.toString();
   }
 
-  public  UserEntity getUser(){
+  public UserEntity getUser() {
     var context = SecurityContextHolder.getContext();
     String name = context.getAuthentication().getName();
-    return userRepo.findByEmailAndStatusTrue(name).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXIST));
+    return userRepo.findByEmail(name).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXIST));
   }
 
 }
