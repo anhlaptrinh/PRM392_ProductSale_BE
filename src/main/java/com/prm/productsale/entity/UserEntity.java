@@ -18,7 +18,8 @@ import lombok.experimental.FieldDefaults;
 public class UserEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  int UserID;
+  @Column(name = "UserID")
+  int id;
 
   @Column(name = "Username")
   String username;

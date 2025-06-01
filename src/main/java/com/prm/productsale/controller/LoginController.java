@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -34,7 +35,67 @@ public class LoginController {
   private MailServicesImp mailServicesImp;
 
 
-  // Login
+  // ============================
+  // 1. Đăng ký (Register) & Gửi mã xác thực
+  // ============================
+
+  @Operation(
+          summary = "Send Verification Code API",
+          description = "Send Verification Code",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Sent verification code successfully",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PostMapping("/verification-code")
+  public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
+    BaseResponse response = new BaseResponse();
+    try {
+      mailServicesImp.sendVerificationEmail(email);
+      response.setCode(200);
+      response.setMessage("Sent verification code successfully");
+      return ResponseEntity.ok(response);
+    } catch (MessagingException e) {
+      response.setCode(400);
+      response.setMessage("Error sending email: " + e.getMessage());
+      return ResponseEntity.ok(response);
+    }
+  }
+
+  @Operation(
+          summary = "User resister",
+          description = "GUEST can resister",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Resister successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PostMapping("/register")
+  public ResponseEntity<?> register(@RequestBody UserRequest request, @RequestParam String verificationCode){
+    userServicesImp.register(request, verificationCode);
+    BaseResponse response = new BaseResponse();
+    response.setCode(200);
+    response.setMessage("Resister successful");
+    return ResponseEntity.ok(response);
+  }
+
+
+  // ============================
+  // 2. Đăng nhập (Login)
+  // ============================
+
   @Operation(
           summary = "User Login",
           description = "Authenticate user with email and password to receive a JWT token",
@@ -72,61 +133,10 @@ public class LoginController {
   }
 
 
-  // Resister
-  @Operation(
-          summary = "User resister",
-          description = "GUEST can resister",
-          responses = {
-                  @ApiResponse(
-                          responseCode = "200",
-                          description = "Resister successful",
-                          content = @Content(
-                                  mediaType = "application/json",
-                                  schema = @Schema(implementation = BaseResponse.class)
-                          )
-                  ),
-          }
-  )
-  @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody UserRequest request, @RequestParam String verificationCode){
-    userServicesImp.register(request, verificationCode);
-    BaseResponse response = new BaseResponse();
-    response.setCode(200);
-    response.setMessage("Resister successful");
-    return ResponseEntity.ok(response);
-  }
+  // ============================
+  // 3. Quên mật khẩu (Forgot Password)
+  // ============================
 
-  // Send Verification to Resister
-  @Operation(
-          summary = "Send Verification Code API",
-          description = "Send Verification Code",
-          responses = {
-                  @ApiResponse(
-                          responseCode = "200",
-                          description = "Sent verification code successfully",
-                          content = @Content(
-                                  mediaType = "application/json",
-                                  schema = @Schema(implementation = BaseResponse.class)
-                          )
-                  ),
-          }
-  )
-  @PostMapping("/verification-code")
-  public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
-    BaseResponse response = new BaseResponse();
-    try {
-      mailServicesImp.sendVerificationEmail(email);
-      response.setCode(200);
-      response.setMessage("Sent verification code successfully");
-      return ResponseEntity.ok(response);
-    } catch (MessagingException e) {
-      response.setCode(400);
-      response.setMessage("Error sending email: " + e.getMessage());
-      return ResponseEntity.ok(response);
-    }
-  }
-
-  // Forgot Password User API
   @Operation(
           summary = "User Forgot Password",
           description = "Reset Password",
@@ -150,6 +160,35 @@ public class LoginController {
     userServicesImp.forgotPassword(email);
     BaseResponse response = new BaseResponse();
     response.setMessage("Your Password is reset Check your mail");
+    return ResponseEntity.ok(response);
+  }
+
+
+  // ============================
+  // 4. Đổi mật khẩu (Change Password)
+  // ============================
+
+  @Operation(
+          summary = "User change Password",
+          description = "Password Change",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "Changed successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PutMapping("/password-change")
+  @PreAuthorize("hasRole('MEMBER')")
+  public ResponseEntity<?> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword){
+    userServicesImp.changePassword(oldPassword, newPassword);
+    BaseResponse response = new BaseResponse();
+    response.setCode(200);
+    response.setMessage("Changed password successful");
     return ResponseEntity.ok(response);
   }
 }
