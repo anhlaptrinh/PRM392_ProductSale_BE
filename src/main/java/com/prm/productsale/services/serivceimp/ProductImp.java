@@ -21,7 +21,7 @@ public class ProductImp implements ProductServices {
     ProductRepo productRepo;
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+
     public List<ProductResponse> getAll() {
         List<ProductEntity> productEntityList = productRepo.findAll();
         if(productEntityList.isEmpty()) throw new AppException(ErrorCode.PRODUCT_NOT_EXIST);

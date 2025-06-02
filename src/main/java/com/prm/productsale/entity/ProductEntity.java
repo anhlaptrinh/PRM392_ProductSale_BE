@@ -1,5 +1,6 @@
 package com.prm.productsale.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity(name = "Products")
 @Data
@@ -30,9 +32,14 @@ public class ProductEntity {
     BigDecimal price;
     @Column(name = "ImageURL")
     String image;
+
     @ManyToOne
     @JoinColumn(name = "CategoryID")
     CategoryEntity category;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product")
+    List<CartItemEntity> cartItems;
 
 
 }

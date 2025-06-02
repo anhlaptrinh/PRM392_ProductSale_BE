@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,10 +61,10 @@ public class ProductController {
                     )
             }
     )
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<?> getAllProducts() {
-       BaseResponse response=getResponse("Success",productImp.getAll());
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",productImp.getAll()));
     }
 
     @Operation(
@@ -87,7 +88,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@RequestBody ProductRequest request) {
         productImp.updateProduct(request);
-        return ResponseEntity.ok(getResponse("Update Success",""));
+        return ResponseEntity.ok(BaseResponse.getResponse("Update Success",""));
     }
     @Operation(
             summary = "Delete a product",
@@ -110,7 +111,7 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         productImp.deleteProduct(id);
-        return ResponseEntity.ok(getResponse("Delete Success",""));
+        return ResponseEntity.ok(BaseResponse.getResponse("Delete Success",""));
     }
 
 
@@ -125,11 +126,6 @@ public class ProductController {
 
 
 
-    public static BaseResponse getResponse(String message,Object data){
-      BaseResponse response = new BaseResponse();
-      response.setMessage(message);
-      response.setData(data);
-      return response;
-    }
+
 
 }
