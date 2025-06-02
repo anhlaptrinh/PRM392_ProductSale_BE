@@ -38,6 +38,7 @@ public class SecurityConfig {
           "/api/authentication/forgot-password",
           "/api/authentication/register",
           "/api/authentication/verification-code",
+          "/api/products/**",
 
 
   };

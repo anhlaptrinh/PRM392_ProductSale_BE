@@ -20,7 +20,8 @@ public enum ErrorCode {
   // ============================
   USER_EXIST(400, "user existed", HttpStatus.BAD_REQUEST),
   PASSWORD_NOT_CORRECT(400, "password is not correct", HttpStatus.BAD_REQUEST),
-  USER_NOT_EXIST(403, "user not existed", HttpStatus.BAD_REQUEST);
+  USER_NOT_EXIST(403, "user not existed", HttpStatus.BAD_REQUEST),
+  PRODUCT_NOT_EXIST(404,"product is empty" ,HttpStatus.NOT_FOUND);
 
 
   private int code;
