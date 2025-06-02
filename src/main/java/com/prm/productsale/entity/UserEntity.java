@@ -1,5 +1,6 @@
 package com.prm.productsale.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Entity(name = "Users")
 @Data
@@ -40,6 +43,14 @@ public class UserEntity {
   @Column(name = "Address")
   String address;
 
+
   @Column(name = "Role")
   String role;
+  @JsonIgnore
+  @OneToMany(mappedBy = "user")
+  List<CartEntity> carts;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user")
+  List<OrderEntity> orders;
 }

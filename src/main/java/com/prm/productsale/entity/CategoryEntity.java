@@ -1,5 +1,6 @@
 package com.prm.productsale.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class CategoryEntity {
     int id;
     @Column(name = "CategoryName")
     String categoryName;
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     List<ProductEntity> products;
 }
