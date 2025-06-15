@@ -10,4 +10,5 @@ public interface ProductServices {
     void deleteProduct(int id);
     void updateProduct(ProductRequest productRequest);
     ProductRequest saveProduct(ProductRequest productRequest);
+    ProductResponse getProductByID(int id);
 }

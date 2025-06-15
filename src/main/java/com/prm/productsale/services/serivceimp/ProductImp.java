@@ -44,4 +44,15 @@ public class ProductImp implements ProductServices {
     public ProductRequest saveProduct(ProductRequest productRequest) {
         return null;
     }
+
+    @Override
+    public ProductResponse getProductByID(int id) {
+        Optional<ProductEntity> optionalProduct = productRepo.findById(id);
+        if(optionalProduct.isPresent()){
+            ProductEntity product = optionalProduct.get();
+            return ProductMapper.INSTANCE.toProductResponse(product);
+        } else {
+            throw new AppException(ErrorCode.PRODUCT_NOT_EXIST);
+        }
+    }
 }

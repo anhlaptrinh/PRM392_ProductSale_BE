@@ -114,6 +114,29 @@ public class ProductController {
         return ResponseEntity.ok(BaseResponse.getResponse("Delete Success",""));
     }
 
+    @Operation(
+            summary = "Find a product by id",
+            description = "MEMBER can find a product by ID",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Find product successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BaseResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Product not found"
+                    )
+            }
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductByID(@PathVariable int id){
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",productImp.getProductByID(id)));
+    }
+
 
 
 
