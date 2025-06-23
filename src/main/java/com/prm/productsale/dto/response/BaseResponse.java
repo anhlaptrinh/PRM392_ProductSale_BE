@@ -1,4 +1,4 @@
-package com.prm.productsale.response;
+package com.prm.productsale.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -19,5 +19,10 @@ public class BaseResponse {
     response.setMessage(message);
     response.setData(data);
     return response;
+  }
+
+  public BaseResponse(int code, String message) {
+    this.code = code;
+    this.message = message;
   }
 }
