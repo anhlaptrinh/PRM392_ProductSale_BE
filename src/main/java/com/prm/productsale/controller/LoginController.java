@@ -3,7 +3,7 @@ package com.prm.productsale.controller;
 import com.prm.productsale.dto.request.UserRequest;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
-import com.prm.productsale.response.BaseResponse;
+import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.LoginServices;
 import com.prm.productsale.services.MailServicesImp;
 import com.prm.productsale.services.UserServicesImp;

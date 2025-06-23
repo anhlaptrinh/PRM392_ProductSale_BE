@@ -1,6 +1,7 @@
 package com.prm.productsale.controller;
 
-import com.prm.productsale.response.BaseResponse;
+import com.prm.productsale.dto.request.ProductRequest;
+import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.ProductImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,12 +22,56 @@ public class ProductController {
   private ProductImp productImp;
 
   @Operation(
-          summary = "Create a new product",
-          description = "MEMBER can create a new product",
+          summary = "Get all products",
+          description = "ADMIN can get all products",
           responses = {
                   @ApiResponse(
                           responseCode = "200",
-                          description = "Created product successfully",
+                          description = "successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @GetMapping
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> getAllProducts() {
+    BaseResponse response =
+            new BaseResponse(200, "successful", productImp.getAllProducts());
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Get a product",
+          description = "ADMIN can get a product",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "successful",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @GetMapping("/{productID}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> getProduct(@PathVariable int productID) {
+    BaseResponse response =
+            new BaseResponse(200, "successful", productImp.getProduct(productID));
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Create a new product",
+          description = "ADMIN can create a new product",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "successful",
                           content = @Content(
                                   mediaType = "application/json",
                                   schema = @Schema(implementation = BaseResponse.class)
@@ -39,43 +84,46 @@ public class ProductController {
           }
   )
   @PostMapping()
-  public ResponseEntity<?> createProduct() {
-    BaseResponse response = new BaseResponse();
-    response.setCode(200);
-    response.setMessage("Created advice successfully");
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> createProduct(@RequestBody ProductRequest request) {
+    BaseResponse response =
+            new BaseResponse(200, "successful", productImp.createProduct(request));
     return ResponseEntity.ok(response);
   }
 
   @Operation(
-          summary = "Get all products",
-          description = "MEMBER can view the product list",
+          summary = "Update product",
+          description = "ADMIN can update product",
           responses = {
                   @ApiResponse(
                           responseCode = "200",
-                          description = "Fetched all products successfully",
+                          description = "successful",
                           content = @Content(
                                   mediaType = "application/json",
                                   schema = @Schema(implementation = BaseResponse.class)
                           )
+                  ),
+                  @ApiResponse(
+                          responseCode = "400",
+                          description = "Invalid input provided"
                   )
           }
   )
-  @GetMapping
+  @PutMapping("/{productID}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<?> getAllProducts() {
-    BaseResponse response= new BaseResponse();
-    response.setData(productImp.getAll());
-    System.out.println("TEST: "+productImp.getAll());
-    return ResponseEntity.ok(productImp.getAll());
+  public ResponseEntity<?> updateProduct(@PathVariable int productID, @RequestBody ProductRequest request) {
+    BaseResponse response =
+            new BaseResponse(200, "successful", productImp.updateProduct(productID, request));
+    return ResponseEntity.ok(response);
   }
 
   @Operation(
           summary = "Delete a product",
-          description = "MEMBER can delete a product by ID",
+          description = "ADMIN can delete a product by ID",
           responses = {
                   @ApiResponse(
                           responseCode = "200",
-                          description = "Deleted product successfully",
+                          description = "successful",
                           content = @Content(
                                   mediaType = "application/json",
                                   schema = @Schema(implementation = BaseResponse.class)
@@ -87,17 +135,12 @@ public class ProductController {
                   )
           }
   )
-  @DeleteMapping("/{id}")
-  public ResponseEntity<?> deleteProduct(@PathVariable int id) {
-    productImp.deleteProduct(id);
-    return ResponseEntity.ok(getResponse("Delete Success",""));
-  }
-
-
-  public static BaseResponse getResponse(String message,Object data){
-    BaseResponse response = new BaseResponse();
-    response.setMessage(message);
-    response.setData(data);
-    return response;
+  @DeleteMapping("/{productID}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> deleteProduct(@PathVariable int productID) {
+    BaseResponse response =
+            new BaseResponse(200, "successful");
+    productImp.deleteProduct(productID);
+    return ResponseEntity.ok(response);
   }
 }
