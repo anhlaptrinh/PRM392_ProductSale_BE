@@ -21,6 +21,56 @@ public class ProductController {
     @Autowired
     ProductImp productImp;
 
+
+
+    @Operation(
+            summary = "Get all products",
+            description = "ADMIN can get all products",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Fetched all products successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BaseResponse.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllProducts() {
+      BaseResponse response =
+              new BaseResponse(200, "success", productImp.getAllProducts());
+      return ResponseEntity.ok(response);
+    }
+
+  @Operation(
+          summary = "Get a product by id",
+          description = "ADMIN can get a product by ID",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+                  @ApiResponse(
+                          responseCode = "404",
+                          description = "Product not found"
+                  )
+          }
+  )
+  @GetMapping("/{productID}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> getProductByID(@PathVariable int productID){
+    BaseResponse response =
+            new BaseResponse(200, "success", productImp.getProductByID(productID));
+    return ResponseEntity.ok(response);
+  }
+
   @Operation(
           summary = "Create a new product",
           description = "ADMIN can create a new product",
@@ -41,33 +91,11 @@ public class ProductController {
   )
   @PostMapping()
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<?> createProduct() {
+  public ResponseEntity<?> createProduct(@RequestBody ProductRequest request) {
     BaseResponse response =
-            new BaseResponse(200, "success", productImp.getAll());
+            new BaseResponse(200, "success", productImp.createProduct(request));
     return ResponseEntity.ok(response);
   }
-
-    @Operation(
-            summary = "Get all products",
-            description = "ADMIN can get all products",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Fetched all products successfully",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class)
-                            )
-                    )
-            }
-    )
-    @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllProducts() {
-      BaseResponse response =
-              new BaseResponse(200, "success", productImp.getAll());
-      return ResponseEntity.ok(response);
-    }
 
     @Operation(
             summary = "Update an existing product",
@@ -121,31 +149,7 @@ public class ProductController {
       return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Get a product by id",
-            description = "ADMIN can get a product by ID",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "success",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Product not found"
-                    )
-            }
-    )
-    @GetMapping("/{productID}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getProductByID(@PathVariable int productID){
-        BaseResponse response =
-                new BaseResponse(200, "success", productImp.getProductByID(productID));
-        return ResponseEntity.ok(response);
-    }
+
 
 
 
