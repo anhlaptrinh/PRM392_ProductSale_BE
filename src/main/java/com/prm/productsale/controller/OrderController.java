@@ -1,7 +1,7 @@
 package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.OrderRequest;
-import com.prm.productsale.response.BaseResponse;
+import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.serivceimp.OrderImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
