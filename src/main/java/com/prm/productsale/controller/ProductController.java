@@ -29,7 +29,7 @@ public class ProductController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Fetched all products successfully",
+                            description = "success",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = BaseResponse.class)
@@ -38,7 +38,7 @@ public class ProductController {
             }
     )
     @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllProducts() {
       BaseResponse response =
               new BaseResponse(200, "success", productImp.getAllProducts());
@@ -64,7 +64,7 @@ public class ProductController {
           }
   )
   @GetMapping("/{productID}")
-  @PreAuthorize("hasRole('ADMIN')")
+//  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> getProductByID(@PathVariable int productID){
     BaseResponse response =
             new BaseResponse(200, "success", productImp.getProductByID(productID));
@@ -90,7 +90,7 @@ public class ProductController {
           }
   )
   @PostMapping()
-  @PreAuthorize("hasRole('ADMIN')")
+//  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> createProduct(@RequestBody ProductRequest request) {
     BaseResponse response =
             new BaseResponse(200, "success", productImp.createProduct(request));
@@ -116,12 +116,13 @@ public class ProductController {
             }
     )
     @PutMapping("/{productID}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateProduct(@PathVariable int productID,@RequestBody ProductRequest request) {
       BaseResponse response =
               new BaseResponse(200, "success", productImp.updateProduct(productID, request));
         return ResponseEntity.ok(response);
     }
+
     @Operation(
             summary = "Delete a product",
             description = "ADMIN can delete a product by ID",
@@ -141,7 +142,7 @@ public class ProductController {
             }
     )
     @DeleteMapping("/{productID}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteProduct(@PathVariable int productID) {
       BaseResponse response =
               new BaseResponse(200, "success");

@@ -5,10 +5,19 @@ import com.prm.productsale.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+import java.util.List;
+
+@Mapper(componentModel = "string")
 public interface UserMapper {
+
   UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    // Bỏ qua password
+  // =========================
+  // 1. Entity -> Response Mapping
+  // =========================
+
+  // Bỏ qua password
   UserResponse toUserResponse(UserEntity user);
+
+  List<UserResponse> toListUserResponse(List<UserEntity> userEntityList);
 }
