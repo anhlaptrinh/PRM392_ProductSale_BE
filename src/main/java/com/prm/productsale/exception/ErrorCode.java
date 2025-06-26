@@ -32,6 +32,8 @@ public enum ErrorCode {
   // 3. Category-related (400 → 403)
   // ============================
   CATEGORY_NOT_EXIST_EXCEPTION(400, "category not exist", HttpStatus.BAD_REQUEST),
+  CATEGORY_EXIST_EXCEPTION(401, "category exist", HttpStatus.BAD_REQUEST),
+  CATEGORY_HAS_PRODUCTS_EXCEPTION(402, "category has products", HttpStatus.BAD_REQUEST),
 
   // ============================
   // 4. Order-related (400 → 403)

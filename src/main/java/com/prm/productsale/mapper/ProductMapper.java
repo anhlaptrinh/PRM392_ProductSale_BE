@@ -13,13 +13,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-  ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
-
   // =========================
   // 1. Entity -> Response Mapping
   // =========================
 
-  @Mapping(source = "category.id", target = "categoryID")
+  @Mapping(source = "category.categoryID", target = "categoryID")
   @Mapping(source = "category.categoryName", target = "categoryName", qualifiedByName = "nullToEmpty")
   @Mapping(source = "productName", target = "productName", qualifiedByName = "nullToEmpty")
   @Mapping(source = "briDesc", target = "briDesc", qualifiedByName = "nullToEmpty")

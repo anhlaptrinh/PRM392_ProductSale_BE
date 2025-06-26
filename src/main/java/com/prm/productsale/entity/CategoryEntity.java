@@ -19,10 +19,10 @@ public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CategoryID")
-    int id;
+    int categoryID;
     @Column(name = "CategoryName")
     String categoryName;
-    @JsonIgnore
+
     @OneToMany(mappedBy = "category")
     List<ProductEntity> products;
 }
