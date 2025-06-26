@@ -1,13 +1,16 @@
 package com.prm.productsale.dto.response;
 
-import com.prm.productsale.entity.ProductEntity;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CategoryResponse {
-    private int id;
-    private String categoryName;
-
+  int categoryID;
+  String categoryName;
+  List<ProductResponse> productList;
 }

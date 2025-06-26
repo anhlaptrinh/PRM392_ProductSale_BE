@@ -1,4 +1,4 @@
-package com.prm.productsale.services;
+package com.prm.productsale.services.serivceimp;
 
 import com.prm.productsale.dto.DataMailDTO;
 import com.prm.productsale.dto.response.UserResponse;
@@ -8,6 +8,8 @@ import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.mapper.UserMapper;
 import com.prm.productsale.repository.UserRepo;
 import com.prm.productsale.dto.request.UserRequest;
+import com.prm.productsale.services.MailServices;
+import com.prm.productsale.services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.prm.productsale.utils.DataUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,13 +39,25 @@ public class UserServicesImp implements UserServices {
   // =========================
 
   @Override
-  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
   public UserResponse getMyInfo() {
     var context = SecurityContextHolder.getContext();
     String email = context.getAuthentication().getName();
 
     UserEntity user = userRepo.findByEmail(email).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXIST));
     return UserMapper.INSTANCE.toUserResponse(user);
+  }
+
+  @Override
+  public List<UserResponse> getAllUsers() {
+    List<UserEntity> userEntityList = userRepo.findAll();
+    return UserMapper.INSTANCE.toListUserResponse(userEntityList);
+  }
+
+  @Override
+  public UserResponse getUserByID(int userID) {
+    UserEntity userEntity = userRepo.findById(userID)
+            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+    return UserMapper.INSTANCE.toUserResponse(userEntity);
   }
 
   // =========================
