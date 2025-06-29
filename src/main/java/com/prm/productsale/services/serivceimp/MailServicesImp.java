@@ -1,9 +1,10 @@
-package com.prm.productsale.services;
+package com.prm.productsale.services.serivceimp;
 
 import com.prm.productsale.dto.DataMailDTO;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.repository.UserRepo;
+import com.prm.productsale.services.MailServices;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;

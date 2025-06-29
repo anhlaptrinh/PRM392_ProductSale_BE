@@ -1,7 +1,7 @@
 package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.ProductRequest;
-import com.prm.productsale.response.BaseResponse;
+import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.serivceimp.ProductImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,13 +21,63 @@ public class ProductController {
     @Autowired
     ProductImp productImp;
 
+
+
+    @Operation(
+            summary = "Get all products",
+            description = "ADMIN can get all products",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "success",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BaseResponse.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping()
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllProducts() {
+      BaseResponse response =
+              new BaseResponse(200, "success", productImp.getAllProducts());
+      return ResponseEntity.ok(response);
+    }
+
   @Operation(
-          summary = "Create a new product",
-          description = "MEMBER can create a new product",
+          summary = "Get a product by id",
+          description = "ADMIN can get a product by ID",
           responses = {
                   @ApiResponse(
                           responseCode = "200",
-                          description = "Created product successfully",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+                  @ApiResponse(
+                          responseCode = "404",
+                          description = "Product not found"
+                  )
+          }
+  )
+  @GetMapping("/{productID}")
+//  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> getProductByID(@PathVariable int productID){
+    BaseResponse response =
+            new BaseResponse(200, "success", productImp.getProductByID(productID));
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Create a new product",
+          description = "ADMIN can create a new product",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
                           content = @Content(
                                   mediaType = "application/json",
                                   schema = @Schema(implementation = BaseResponse.class)
@@ -40,40 +90,20 @@ public class ProductController {
           }
   )
   @PostMapping()
-  public ResponseEntity<?> createProduct() {
-    BaseResponse response = new BaseResponse();
-    response.setCode(200);
-    response.setMessage("Created advice successfully");
+//  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> createProduct(@RequestBody ProductRequest request) {
+    BaseResponse response =
+            new BaseResponse(200, "success", productImp.createProduct(request));
     return ResponseEntity.ok(response);
   }
 
     @Operation(
-            summary = "Get all products",
-            description = "MEMBER can view the product list",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Fetched all products successfully",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class)
-                            )
-                    )
-            }
-    )
-    @GetMapping()
-    public ResponseEntity<?> getAllProducts() {
-
-        return ResponseEntity.ok(BaseResponse.getResponse("Success",productImp.getAll()));
-    }
-
-    @Operation(
             summary = "Update an existing product",
-            description = "MEMBER can update a product by ID",
+            description = "ADMIN can update a product by ID",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Updated product successfully",
+                            description = "success",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = BaseResponse.class)
@@ -85,18 +115,21 @@ public class ProductController {
                     )
             }
     )
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductRequest request) {
-        productImp.updateProduct(request);
-        return ResponseEntity.ok(BaseResponse.getResponse("Update Success",""));
+    @PutMapping("/{productID}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateProduct(@PathVariable int productID,@RequestBody ProductRequest request) {
+      BaseResponse response =
+              new BaseResponse(200, "success", productImp.updateProduct(productID, request));
+        return ResponseEntity.ok(response);
     }
+
     @Operation(
             summary = "Delete a product",
-            description = "MEMBER can delete a product by ID",
+            description = "ADMIN can delete a product by ID",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Deleted product successfully",
+                            description = "success",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = BaseResponse.class)
@@ -108,11 +141,16 @@ public class ProductController {
                     )
             }
     )
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
-        productImp.deleteProduct(id);
-        return ResponseEntity.ok(BaseResponse.getResponse("Delete Success",""));
+    @DeleteMapping("/{productID}")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteProduct(@PathVariable int productID) {
+      BaseResponse response =
+              new BaseResponse(200, "success");
+      productImp.deleteProduct(productID);
+      return ResponseEntity.ok(response);
     }
+
+
 
 
 

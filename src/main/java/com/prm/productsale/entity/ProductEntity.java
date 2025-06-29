@@ -19,7 +19,7 @@ import java.util.List;
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int ProductID;
+    int productID;
     @Column(name = "ProductName")
     String productName;
     @Column(name = "BriefDescription")
@@ -31,7 +31,7 @@ public class ProductEntity {
     @Column(name = "Price")
     BigDecimal price;
     @Column(name = "ImageURL")
-    String image;
+    String imageURL;
 
     @ManyToOne
     @JoinColumn(name = "CategoryID")

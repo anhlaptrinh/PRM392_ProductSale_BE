@@ -6,8 +6,9 @@ import com.prm.productsale.dto.response.ProductResponse;
 import java.util.List;
 
 public interface ProductServices {
-    List<ProductResponse> getAll();
+    List<ProductResponse> getAllProducts();
+    ProductResponse getProductByID(int productID);
+    ProductResponse createProduct(ProductRequest request);
+    ProductResponse updateProduct(int productID, ProductRequest request);
     void deleteProduct(int id);
-    void updateProduct(ProductRequest productRequest);
-    ProductRequest saveProduct(ProductRequest productRequest);
 }
