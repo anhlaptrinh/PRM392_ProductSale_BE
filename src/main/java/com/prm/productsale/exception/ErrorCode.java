@@ -38,7 +38,8 @@ public enum ErrorCode {
   // ============================
   // 4. Order-related (400 → 403)
   // ============================
-  ORDER_NOT_EXIST(404,"Cannot found Your Order" ,HttpStatus.NOT_FOUND );
+  ORDER_NOT_EXIST(404,"Cannot found Your Order" ,HttpStatus.NOT_FOUND ),
+  INVALID_FORMAT(403,"Invalid format STRING" ,HttpStatus.BAD_REQUEST);
 
 
 
