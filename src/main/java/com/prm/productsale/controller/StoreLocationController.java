@@ -39,7 +39,7 @@ public class StoreLocationController {
           }
   )
   @GetMapping()
-  @PreAuthorize("hasRole('MEMBER')")
+//  @PreAuthorize("hasRole('MEMBER')")
   public ResponseEntity<?> getAllStoreLocations() {
     BaseResponse response =
             new BaseResponse(200, "success", storeLocationImp.getAllStoreLocations());
