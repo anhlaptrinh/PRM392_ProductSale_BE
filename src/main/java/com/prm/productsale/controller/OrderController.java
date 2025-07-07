@@ -52,7 +52,7 @@ public class OrderController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<?> getOrderById(@PathVariable int id) {
         return ResponseEntity.ok("");
     }
 
@@ -100,8 +100,33 @@ public class OrderController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
 
         return ResponseEntity.noContent().build();
+    }
+    @Operation(
+            summary = "Get order Status",
+            description = "Get order Status",
+            responses = {
+        @ApiResponse(responseCode = "204", description = "Order found"),
+        @ApiResponse(responseCode = "404", description = "Order not found")
+    }
+    )
+    @GetMapping("/status")
+    public ResponseEntity<?> getStatusOrder(@RequestParam String status){
+        return ResponseEntity.ok(BaseResponse.getResponse("successfully",orderService.findByStatus(status)));
+    }
+    @Operation(
+            summary = "Update order Status",
+            description = "Update order Status",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Order found"),
+                    @ApiResponse(responseCode = "404", description = "Order not found")
+            }
+    )
+    @PutMapping("/update-status")
+    public ResponseEntity<?> updateStatus(@RequestParam int id, @RequestParam String status){
+        orderService.editStatus(id,status);
+        return ResponseEntity.ok(BaseResponse.getResponse("Status change to: "+status,""));
     }
 }

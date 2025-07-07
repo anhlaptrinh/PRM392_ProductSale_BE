@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderResponse {
     int id;
-    CartEntity cart;
     UserEntity user;
     String pmMethod;
     String bill;

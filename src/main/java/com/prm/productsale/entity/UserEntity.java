@@ -1,6 +1,7 @@
 package com.prm.productsale.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -29,6 +30,7 @@ public class UserEntity {
 
   @Size(min = 8,message = "INVALID_PASSWORD")
   @Column(name = "PasswordHash")
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   String password;
 
   @Email(message = "Email is incorrect!")

@@ -24,4 +24,28 @@ public class OrderImp implements OrderServices {
         if(orderEntity.isEmpty()) throw new AppException(ErrorCode.ORDER_NOT_EXIST);
         return OrderMapper.INSTANCE.toOrderResponseList(orderEntity);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public List<OrderResponse> findByStatus(String status) {
+        List<OrderEntity> orderEntityList = orderRepo.findByOrderStatus(status);
+        if (orderEntityList.isEmpty()) throw new AppException(ErrorCode.ORDER_NOT_EXIST);
+        return OrderMapper.INSTANCE.toOrderResponseList(orderEntityList);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public void editStatus(int orderId,String status) {
+        if (!status.equalsIgnoreCase("pending") &&
+                !status.equalsIgnoreCase("shipped") &&
+                !status.equalsIgnoreCase("cancel")&&
+                !status.equalsIgnoreCase("delivered")) {
+            throw new AppException(ErrorCode.INVALID_FORMAT);
+        }
+        OrderEntity order = orderRepo.findById(orderId).orElseThrow(()->new AppException(ErrorCode.ORDER_NOT_EXIST));
+        order.setOrderStatus(status);
+        orderRepo.save(order);
+    }
+
+
 }
