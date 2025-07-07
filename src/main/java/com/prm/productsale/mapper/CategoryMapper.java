@@ -17,7 +17,6 @@ public interface CategoryMapper {
   // 1. Entity -> Response Mapping
   // =========================
 
-  @Mapping(source = "products", target = "productList")
   CategoryResponse toCategoryResponse(CategoryEntity categoryEntity);
 
   List<CategoryResponse> toListCategoryResponse(List<CategoryEntity> categoryEntityList);
