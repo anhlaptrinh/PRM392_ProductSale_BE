@@ -4,9 +4,11 @@ package com.prm.productsale.services;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.prm.productsale.entity.CartEntity;
 import com.prm.productsale.entity.UserEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
+import com.prm.productsale.repository.CartRepo;
 import com.prm.productsale.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -29,6 +32,8 @@ public class LoginServices  {
   private UserRepo userRepo;
   @Autowired
   private PasswordEncoder passwordEncoder;
+  @Autowired
+  CartRepo cartRepo;
   @Value("${jwt.key}")
   private String keyjwt;
 
@@ -78,6 +83,23 @@ public class LoginServices  {
     var context = SecurityContextHolder.getContext();
     String name = context.getAuthentication().getName();
     return userRepo.findByEmail(name).orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXIST));
+  }
+  public CartEntity getCart(){
+    UserEntity user = getUser();
+    if (user == null) {
+      throw new IllegalStateException("No authenticated user found.");
+    }
+    Optional<CartEntity> cart = cartRepo.findByUserId(user.getId());
+    if(cart.isPresent()){
+      return cart.get();
+    }
+    CartEntity cartEntity = new CartEntity();
+    cartEntity.setUser(user);
+    cartEntity.setTotal(BigDecimal.ZERO);
+    cartEntity.setStatus("ACTIVE");
+    cartRepo.save(cartEntity);
+    return cartEntity;
+
   }
 
 }
