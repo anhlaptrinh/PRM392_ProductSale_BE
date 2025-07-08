@@ -40,6 +40,8 @@ public class SecurityConfig {
           "/api/authentication/register",
           "/api/authentication/verification-code",
 
+          "/api/mobile/cart"
+
 
   };
   @Value("${jwt.key}")

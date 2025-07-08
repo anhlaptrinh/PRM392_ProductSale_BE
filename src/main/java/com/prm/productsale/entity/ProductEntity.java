@@ -19,7 +19,8 @@ import java.util.List;
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int productID;
+    @Column(name = "ProductID")
+    int id;
     @Column(name = "ProductName")
     String productName;
     @Column(name = "BriefDescription")
