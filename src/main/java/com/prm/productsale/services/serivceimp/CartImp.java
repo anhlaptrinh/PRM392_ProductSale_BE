@@ -44,13 +44,13 @@ public class CartImp implements CartServices {
             cartItem = existingCartItemOpt.get();
             int newQuantity = cartItem.getQuantity() + request.getQuantity();
             cartItem.setQuantity(newQuantity);
-            cartItem.setPrice(request.getPrice().multiply(BigDecimal.valueOf(newQuantity)));
+            cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(newQuantity)));
         }else{
             cartItem = new CartItemEntity();
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(request.getQuantity());
-            cartItem.setPrice(request.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));
+            cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));
         }
         cartItemRepo.save(cartItem);
         List<CartItemEntity> items = cartItemRepo.findByCartId(cart.getId());
@@ -121,5 +121,12 @@ public class CartImp implements CartServices {
         List<CartItemEntity> cartItemList = cartItemRepo.findByCartId(cart.getId());
 
         return CartItemMapper.INSTANCE.toListCartItemResponse(cartItemList);
+    }
+
+    @Override
+    public BigDecimal getTotalAmount() {
+        CartEntity cart =
+                cartRepo.findByUserId(loginServices.getUser().getId()).orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+        return cart.getTotal();
     }
 }
