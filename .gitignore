@@ -32,7 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 # Ignore MySQL runtime files
-mysql-data/
-mysql-data/*.sock
-mysql-data/*.pid
-mysql-data/*.err
+
+mysql-data/*
+!mysql-data/.gitkeep
+
+
+
