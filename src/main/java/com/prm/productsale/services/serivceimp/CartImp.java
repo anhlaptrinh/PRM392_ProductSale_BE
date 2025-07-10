@@ -129,4 +129,13 @@ public class CartImp implements CartServices {
                 cartRepo.findByUserId(loginServices.getUser().getId()).orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
         return cart.getTotal();
     }
+
+    @Transactional
+    @Override
+    public void deleteAll() {
+        cartItemRepo.deleteAll();
+        CartEntity cart = loginServices.getCart();
+        cart.setTotal(BigDecimal.ZERO);
+        cartRepo.save(cart);
+    }
 }
