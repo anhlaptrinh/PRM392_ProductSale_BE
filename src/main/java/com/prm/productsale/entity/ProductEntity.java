@@ -1,6 +1,7 @@
 package com.prm.productsale.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,11 @@ public class ProductEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "product")
     List<CartItemEntity> cartItems;
+
+
+    @OneToMany(mappedBy = "product")
+    List<WishlistEntity> wishlist;
+
 
 
 }

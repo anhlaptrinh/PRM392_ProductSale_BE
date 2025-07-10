@@ -55,4 +55,8 @@ public class UserEntity {
   @JsonIgnore
   @OneToMany(mappedBy = "user")
   List<OrderEntity> orders;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user")
+  List<WishlistEntity> wishlist;
 }

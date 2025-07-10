@@ -2,6 +2,8 @@ package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.CartItemRequest;
 import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.dto.response.CartItemResponse;
+import com.prm.productsale.entity.CartItemEntity;
 import com.prm.productsale.services.serivceimp.CartImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,8 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/api/mobile/cart")
+@CrossOrigin
 @Tag(name = "Cart API", description = "API for Cart")
 
 public class CartController {
@@ -63,7 +71,13 @@ public class CartController {
     )
     @GetMapping()
     public ResponseEntity<?> getCartItem(){
-        return ResponseEntity.ok(BaseResponse.getResponse("successfully",cartImp.getListItem().isEmpty()?"":cartImp.getListItem()));
+        List<CartItemResponse> items= cartImp.getListItem();
+        BigDecimal total = cartImp.getTotalAmount();
+        Map<String, Object> response = new HashMap<>();
+        response.put("total", total);
+        response.put("cartItem", items);
+
+        return ResponseEntity.ok(BaseResponse.getResponse("successfully",response));
     }
     @Operation(
             summary = "Update Quantity cart Items",
@@ -93,6 +107,12 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCartItem(@PathVariable("id") int cartItemId) {
         cartImp.deleteItem(cartItemId);
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
+    }
+    @Operation(summary = "Delete All item cart")
+    @DeleteMapping("/clear")
+    public ResponseEntity<?> deleteAll() {
+        cartImp.deleteAll();
         return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
     }
 }
