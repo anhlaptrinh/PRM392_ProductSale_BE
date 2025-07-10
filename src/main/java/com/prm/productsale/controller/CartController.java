@@ -75,7 +75,7 @@ public class CartController {
         BigDecimal total = cartImp.getTotalAmount();
         Map<String, Object> response = new HashMap<>();
         response.put("total", total);
-        response.put("cartItem", items.isEmpty()?"":items);
+        response.put("cartItem", items);
 
         return ResponseEntity.ok(BaseResponse.getResponse("successfully",response));
     }
@@ -107,6 +107,12 @@ public class CartController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCartItem(@PathVariable("id") int cartItemId) {
         cartImp.deleteItem(cartItemId);
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
+    }
+    @Operation(summary = "Delete All item cart")
+    @DeleteMapping("/clear")
+    public ResponseEntity<?> deleteAll() {
+        cartImp.deleteAll();
         return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
     }
 }
