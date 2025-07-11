@@ -19,6 +19,8 @@ public interface CartItemMapper extends CommonMapUtils {
     List<CartItemResponse> toListCartItemResponse(List<CartItemEntity> cartItemResponseList);
     @Mapping(source = "productName", target = "name")
     @Mapping(source = "imageURL", target = "imagePath",qualifiedByName = "nullToEmpty")
+    @Mapping(source = "price", target = "price")
+
     ProductOfCartItem toProductOfCartItem(ProductEntity product);
 
 
