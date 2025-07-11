@@ -12,6 +12,8 @@ import com.prm.productsale.repository.ProductRepo;
 import com.prm.productsale.services.ProductServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.util.Comparator;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +44,41 @@ public class ProductImp implements ProductServices {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST_EXCEPTION));
         return productMapper.toProductResponse(entity);
     }
+    @Override
+    public List<ProductResponse> filterProducts(Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
+        List<ProductEntity> products = productRepo.findAll();
+
+        if (categoryId != null) {
+            products = products.stream()
+                    .filter(p -> p.getCategory().getCategoryID() == categoryId)
+                    .toList();
+        }
+
+        if (minPrice != null) {
+            products = products.stream()
+                    .filter(p -> p.getPrice().compareTo(minPrice) >= 0)
+                    .toList();
+        }
+
+        if (maxPrice != null) {
+            products = products.stream()
+                    .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)
+                    .toList();
+        }
+
+        if ("price_asc".equalsIgnoreCase(sort)) {
+            products = products.stream()
+                    .sorted(Comparator.comparing(ProductEntity::getPrice))
+                    .toList();
+        } else if ("price_desc".equalsIgnoreCase(sort)) {
+            products = products.stream()
+                    .sorted(Comparator.comparing(ProductEntity::getPrice).reversed())
+                    .toList();
+        }
+
+        return productMapper.toListProductResponse(products);
+    }
+
 
     // =========================
     // 2. Các method "Create" (POST)

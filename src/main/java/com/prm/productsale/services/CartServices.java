@@ -14,4 +14,5 @@ public interface CartServices {
     List<CartItemResponse> getListItem();
     BigDecimal getTotalAmount();
     void deleteAll();
+    int getItemCount();
 }
