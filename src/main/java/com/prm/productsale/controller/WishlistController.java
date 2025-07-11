@@ -10,16 +10,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Tag(name = "Wishlist API", description = "API for user Wishlist")
+@CrossOrigin
+@RequestMapping(value = "/api/mobile/wishlist")
 public class WishlistController {
     @Autowired
     private WishlistImp wishlistImp;
@@ -50,7 +52,7 @@ public class WishlistController {
 
     @Operation(
             summary = "Get Wishlist",
-            description = "Member can Get their Wishlist",
+            description = "Admin can Get All Wishlist",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -71,5 +73,34 @@ public class WishlistController {
         List<WishListResponse> listResponses = wishlistImp.findAll();
         return ResponseEntity.ok(BaseResponse.getResponse("Success",listResponses.isEmpty()?"empty data":
                 listResponses));
+    }
+    @Operation(
+            summary = "Get Wishlist",
+            description = "Member can Get their Wishlist",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "success",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = BaseResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid input provided"
+                    )
+            }
+    )
+    @GetMapping("/find-by-UserId")
+    public ResponseEntity<?> findWishlistByUserId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
+        Page<WishListResponse> items = wishlistImp.findByUserId(page,size);
+        Map<String,Object> response = new HashMap<>();
+        response.put("page",items.getNumber());
+        response.put("totalPages",items.getTotalPages());
+        response.put("totalItems",items.getTotalElements());
+        response.put("isLast",items.isLast());
+        response.put("wishListItem",items.getContent());
+        return ResponseEntity.ok(BaseResponse.getResponse("Successfully",response));
     }
 }
