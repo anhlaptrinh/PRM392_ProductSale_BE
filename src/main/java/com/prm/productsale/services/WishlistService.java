@@ -10,7 +10,8 @@ import java.util.List;
 public interface WishlistService {
     void addToWishlist(int productId);
     List<WishListResponse> findAll();
-    void deleteWishList();
+    void deleteWishList(int id,Boolean isCreate);
     Page<WishListResponse> findByUserId(int page, int size);
+
 
 }

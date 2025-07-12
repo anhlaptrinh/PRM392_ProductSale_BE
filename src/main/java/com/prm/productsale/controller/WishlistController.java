@@ -103,4 +103,14 @@ public class WishlistController {
         response.put("wishListItem",items.getContent());
         return ResponseEntity.ok(BaseResponse.getResponse("Successfully",response));
     }
+    @Operation(summary = "Delete item wishlist or create cart")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") int id,
+                                        @RequestParam(defaultValue = "false") Boolean isCreateCart){
+        wishlistImp.deleteWishList(id,isCreateCart);
+        String message = isCreateCart==true?"Create Cart Success":"Delete Success";
+
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",message));
+
+    }
 }
