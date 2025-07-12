@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
+import java.util.List;
+import com.prm.productsale.dto.response.ProductResponse;
 
 @RestController
 @RequestMapping(value = "/api/products")
@@ -122,7 +125,20 @@ public class ProductController {
               new BaseResponse(200, "success", productImp.updateProduct(productID, request));
         return ResponseEntity.ok(response);
     }
-
+    @Operation(
+            summary = "Filter and sort products",
+            description = "Filter by category, price range and sort by price"
+    )
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProducts(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String sort  // values: "price_asc", "price_desc"
+    ) {
+        List<ProductResponse> filteredProducts = productImp.filterProducts(categoryId, minPrice, maxPrice, sort);
+        return ResponseEntity.ok(new BaseResponse(200, "Filtered products", filteredProducts));
+    }
     @Operation(
             summary = "Delete a product",
             description = "ADMIN can delete a product by ID",

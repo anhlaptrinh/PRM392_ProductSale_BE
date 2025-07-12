@@ -135,6 +135,14 @@ public class CartImp implements CartServices {
         return cart.getTotal();
     }
 
+    @Override
+    public int getItemCount() {
+        CartEntity cart = loginServices.getCart();
+        return cartItemRepo.findByCartId(cart.getId())
+                .stream()
+                .mapToInt(CartItemEntity::getQuantity)
+                .sum();
+    }
     @Transactional
     @Override
     public void deleteAll() {
