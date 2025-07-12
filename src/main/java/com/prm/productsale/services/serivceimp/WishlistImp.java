@@ -1,5 +1,6 @@
 package com.prm.productsale.services.serivceimp;
 
+import com.prm.productsale.dto.request.CartItemRequest;
 import com.prm.productsale.dto.response.WishListResponse;
 import com.prm.productsale.entity.ProductEntity;
 import com.prm.productsale.entity.UserEntity;
@@ -30,6 +31,8 @@ public class WishlistImp implements WishlistService {
     private LoginServices loginServices;
     @Autowired
     private ProductRepo productRepo;
+    @Autowired
+    private CartImp cartImp;
     @Override
     public void addToWishlist(int productId) {
         WishlistEntity wishlistEntity = new WishlistEntity();
@@ -53,8 +56,18 @@ public class WishlistImp implements WishlistService {
     }
 
     @Override
-    public void deleteWishList() {
+    public void deleteWishList(int id,Boolean isCreate) {
+        WishlistEntity wishlistEntity =
+                wishlistRepo.findById(id).orElseThrow(()->new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+        if(isCreate == true){
 
+            CartItemRequest cartItemRequest = new CartItemRequest(wishlistEntity.getProduct().getId(),1);
+            cartImp.createItem(cartItemRequest);
+            wishlistRepo.delete(wishlistEntity);
+        }
+        else{
+            wishlistRepo.delete(wishlistEntity);
+        }
     }
 
     @Override

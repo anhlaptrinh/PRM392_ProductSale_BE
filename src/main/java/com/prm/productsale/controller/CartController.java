@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -48,6 +49,7 @@ public class CartController {
             }
     )
     @PostMapping()
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> createCartItem(@RequestBody CartItemRequest request){
         cartImp.createItem(request);
         return ResponseEntity.ok(BaseResponse.getResponse("Add Success",""));
@@ -71,6 +73,7 @@ public class CartController {
             }
     )
     @GetMapping()
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> getCartItem( @RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "5") int size){
         Page<CartItemResponse> items= cartImp.getListItem(page,size);
@@ -114,6 +117,7 @@ public class CartController {
     )
 
     @PutMapping("/{id}/quantity")
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> updateQuantityCartItem(@PathVariable("id") int cartItemId,
                                                     @RequestParam int quantity){
         return ResponseEntity.ok(BaseResponse.getResponse("successfully",cartImp.updateItem(cartItemId,quantity)));
@@ -121,12 +125,14 @@ public class CartController {
 
     @Operation(summary = "Delete item cart")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> deleteCartItem(@PathVariable("id") int cartItemId) {
         cartImp.deleteItem(cartItemId);
         return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
     }
     @Operation(summary = "Delete All item cart")
     @DeleteMapping("/clear")
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> deleteAll() {
         cartImp.deleteAll();
         return ResponseEntity.ok(BaseResponse.getResponse("Success",""));
