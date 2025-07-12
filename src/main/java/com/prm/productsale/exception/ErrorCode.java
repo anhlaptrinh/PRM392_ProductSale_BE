@@ -44,7 +44,7 @@ public enum ErrorCode {
   CART_ITEM_NOT_FOUND(403,"Not found your item cart" ,HttpStatus.BAD_REQUEST),
   DUPLICATE_WISHLIST(403,"Duplicate item wishlist" ,HttpStatus.BAD_REQUEST ),
 
-  WISHLIST_NOT_FOUND(403,"Wishlist not found" ,HttpStatus.BAD_REQUEST );
+  WISHLIST_NOT_FOUND(403,"Wishlist not found" ,HttpStatus.BAD_REQUEST ),
 
 
   // ============================
