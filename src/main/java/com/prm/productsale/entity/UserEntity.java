@@ -59,4 +59,8 @@ public class UserEntity {
   @JsonIgnore
   @OneToMany(mappedBy = "user")
   List<WishlistEntity> wishlist;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+  List<NotificationEntity> notifications;
 }

@@ -86,6 +86,15 @@ public class CartController {
         return ResponseEntity.ok(BaseResponse.getResponse("successfully",response));
     }
     @Operation(
+            summary = "Get total number of items in cart",
+            description = "Returns the total quantity of products in the user's cart"
+    )
+    @GetMapping("/count")
+    public ResponseEntity<?> getCartItemCount() {
+        int count = cartImp.getItemCount();
+        return ResponseEntity.ok(BaseResponse.getResponse("success", count));
+    }
+    @Operation(
             summary = "Update Quantity cart Items",
             description = "Member can edit number cart Item",
             responses = {
@@ -103,6 +112,7 @@ public class CartController {
                     )
             }
     )
+
     @PutMapping("/{id}/quantity")
     public ResponseEntity<?> updateQuantityCartItem(@PathVariable("id") int cartItemId,
                                                     @RequestParam int quantity){
