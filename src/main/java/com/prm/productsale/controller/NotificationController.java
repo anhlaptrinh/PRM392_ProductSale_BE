@@ -20,13 +20,18 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send")
-    public ResponseEntity<?> sendNotification(@RequestParam int userId, @RequestParam String content) {
-        notificationService.sendNotificationToUser(userId, content);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> sendNotification(@RequestParam String email, @RequestParam String content) {
+        notificationService.sendNotificationToUserByEmail(email, content);
         return ResponseEntity.ok("Notification sent");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllNotifications() {
+        return ResponseEntity.ok(notificationService.getAllNotifications());
+    }
     @GetMapping("/my")
     public ResponseEntity<?> getMyNotifications() {
         return ResponseEntity.ok(notificationService.getUserNotifications());

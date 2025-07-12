@@ -27,7 +27,8 @@ public enum ErrorCode {
   // ============================
   PRODUCT_NOT_EXIST_EXCEPTION(400, "product not exist", HttpStatus.BAD_REQUEST),
   PRODUCT_LIST_NOT_EXIST_EXCEPTION(401, "product list not exist", HttpStatus.BAD_REQUEST),
-
+  INVALID_SORT_TYPE(400, "sort type is invalid", HttpStatus.BAD_REQUEST),
+  INVALID_PRICE_RANGE(400, "price must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
   // ============================
   // 3. Category-related (400 → 403)
   // ============================

@@ -11,6 +11,8 @@ import com.prm.productsale.entity.NotificationEntity;
 import com.prm.productsale.entity.UserEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -25,20 +27,37 @@ public class NotificationServiceImp implements NotificationService {
     private LoginServices loginServices;
 
     @Override
-    public void sendNotificationToUser(int userId, String content) {
-        UserEntity user = userRepo.findById(userId)
+    public void sendNotificationToUserByEmail(String email, String content) {
+        UserEntity user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
         NotificationEntity notification = new NotificationEntity();
         notification.setContent(content);
         notification.setUser(user);
         notificationRepo.save(notification);
     }
 
+
     @Override
     public List<NotificationEntity> getUserNotifications() {
         int userId = loginServices.getUser().getId();
         return notificationRepo.findByUserIdOrderByCreatedAtDesc(userId);
     }
+    @Override
+    public List<NotificationEntity> getAllNotifications() {
+        List<UserEntity> users = userRepo.findAll();
+
+        List<NotificationEntity> allNotifications = new ArrayList<>();
+
+        for (UserEntity user : users) {
+            allNotifications.addAll(user.getNotifications()); // cần getNotifications()
+        }
+
+        allNotifications.sort(Comparator.comparing(NotificationEntity::getCreatedAt).reversed());
+
+        return allNotifications;
+    }
+
 
     @Override
     public void markAsRead(int notificationId) {

@@ -48,37 +48,51 @@ public class ProductImp implements ProductServices {
     public List<ProductResponse> filterProducts(Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
         List<ProductEntity> products = productRepo.findAll();
 
+        // ✅ Kiểm tra category có tồn tại không
         if (categoryId != null) {
+            boolean categoryExists = categoryRepo.existsById(categoryId);
+            if (!categoryExists) {
+                throw new AppException(ErrorCode.CATEGORY_NOT_EXIST_EXCEPTION);
+            }
             products = products.stream()
                     .filter(p -> p.getCategory().getCategoryID() == categoryId)
                     .toList();
         }
 
+        // ✅ Kiểm tra min/max price không âm
         if (minPrice != null) {
+            if (minPrice.compareTo(BigDecimal.ZERO) < 0) {
+                throw new AppException(ErrorCode.INVALID_PRICE_RANGE);
+            }
             products = products.stream()
                     .filter(p -> p.getPrice().compareTo(minPrice) >= 0)
                     .toList();
         }
 
         if (maxPrice != null) {
+            if (maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+                throw new AppException(ErrorCode.INVALID_PRICE_RANGE);
+            }
             products = products.stream()
                     .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)
                     .toList();
         }
 
-        if ("price_asc".equalsIgnoreCase(sort)) {
-            products = products.stream()
-                    .sorted(Comparator.comparing(ProductEntity::getPrice))
-                    .toList();
-        } else if ("price_desc".equalsIgnoreCase(sort)) {
-            products = products.stream()
-                    .sorted(Comparator.comparing(ProductEntity::getPrice).reversed())
-                    .toList();
+        // ✅ Kiểm tra sort type hợp lệ
+        if (sort != null && !sort.isBlank()) {
+            switch (sort.toLowerCase()) {
+                case "price_asc" -> products = products.stream()
+                        .sorted(Comparator.comparing(ProductEntity::getPrice))
+                        .toList();
+                case "price_desc" -> products = products.stream()
+                        .sorted(Comparator.comparing(ProductEntity::getPrice).reversed())
+                        .toList();
+                default -> throw new AppException(ErrorCode.INVALID_SORT_TYPE);
+            }
         }
 
         return productMapper.toListProductResponse(products);
     }
-
 
     // =========================
     // 2. Các method "Create" (POST)
