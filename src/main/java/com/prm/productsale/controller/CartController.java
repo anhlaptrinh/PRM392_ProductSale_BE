@@ -11,12 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 @RestController
@@ -70,12 +71,17 @@ public class CartController {
             }
     )
     @GetMapping()
-    public ResponseEntity<?> getCartItem(){
-        List<CartItemResponse> items= cartImp.getListItem();
+    public ResponseEntity<?> getCartItem( @RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "5") int size){
+        Page<CartItemResponse> items= cartImp.getListItem(page,size);
         BigDecimal total = cartImp.getTotalAmount();
         Map<String, Object> response = new HashMap<>();
         response.put("total", total);
-        response.put("cartItem", items);
+        response.put("cartItem", items.getContent());
+        response.put("page", items.getNumber());
+        response.put("totalPages", items.getTotalPages());
+        response.put("totalItems", items.getTotalElements());
+        response.put("isLast", items.isLast());
 
         return ResponseEntity.ok(BaseResponse.getResponse("successfully",response));
     }

@@ -13,6 +13,11 @@ import com.prm.productsale.services.LoginServices;
 import com.prm.productsale.services.WishlistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +45,7 @@ public class WishlistImp implements WishlistService {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public List<WishListResponse> findAll() {
         List<WishlistEntity> wishlistEntities = wishlistRepo.findAll();
@@ -49,5 +55,13 @@ public class WishlistImp implements WishlistService {
     @Override
     public void deleteWishList() {
 
+    }
+
+    @Override
+    public Page<WishListResponse> findByUserId(int page,int size) {
+        UserEntity user = loginServices.getUser();
+        Pageable pageable =  PageRequest.of(page, size, Sort.by("id").descending());
+        Page<WishlistEntity> wishlist = wishlistRepo.findByUserId(user.getId(),pageable);
+        return wishlist.map(WishlistMapper.INSTANCE::toWishListResponse);
     }
 }

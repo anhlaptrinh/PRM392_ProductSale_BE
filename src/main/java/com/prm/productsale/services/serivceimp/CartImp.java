@@ -15,6 +15,10 @@ import com.prm.productsale.repository.ProductRepo;
 import com.prm.productsale.services.CartServices;
 import com.prm.productsale.services.LoginServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -115,12 +119,13 @@ public class CartImp implements CartServices {
     }
 
     @Override
-    public List<CartItemResponse> getListItem() {
+    public Page<CartItemResponse> getListItem(int page,int size) {
         CartEntity cart = loginServices.getCart();
 
-        List<CartItemEntity> cartItemList = cartItemRepo.findByCartId(cart.getId());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<CartItemEntity> itemPage = cartItemRepo.findByCartId(cart.getId(), pageable);
 
-        return CartItemMapper.INSTANCE.toListCartItemResponse(cartItemList);
+        return itemPage.map(CartItemMapper.INSTANCE::toCartItemResponse);
     }
 
     @Override
