@@ -2,6 +2,7 @@ package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.OrderRequest;
 import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.entity.OrderEntity;
 import com.prm.productsale.services.serivceimp.OrderImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -53,7 +54,8 @@ public class OrderController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable int id) {
-        return ResponseEntity.ok("");
+        OrderEntity order = orderService.getOrder(id);
+        return ResponseEntity.ok(BaseResponse.getResponse("Success", order));
     }
 
     @Operation(
@@ -71,7 +73,11 @@ public class OrderController {
     )
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request) {
-        BaseResponse response = BaseResponse.getResponse( "Order created","");
+        // Gọi Service tạo đơn:
+        OrderEntity createdOrder = orderService.createOrder(request);
+
+        // Sau đó trả về response chuẩn:
+        BaseResponse response = BaseResponse.getResponse("Order created", createdOrder);
         return ResponseEntity.ok(response);
     }
 
@@ -129,4 +135,5 @@ public class OrderController {
         orderService.editStatus(id,status);
         return ResponseEntity.ok(BaseResponse.getResponse("Status change to: "+status,""));
     }
+
 }
