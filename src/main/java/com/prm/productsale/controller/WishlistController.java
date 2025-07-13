@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public class WishlistController {
             }
     )
     @PostMapping
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> createWishlist(@RequestParam int id){
         wishlistImp.addToWishlist(id);
         return ResponseEntity.ok(BaseResponse.getResponse("Add Success",""));
@@ -69,6 +71,7 @@ public class WishlistController {
             }
     )
     @GetMapping
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> findAll(){
         List<WishListResponse> listResponses = wishlistImp.findAll();
         return ResponseEntity.ok(BaseResponse.getResponse("Success",listResponses.isEmpty()?"empty data":
@@ -93,6 +96,7 @@ public class WishlistController {
             }
     )
     @GetMapping("/find-by-UserId")
+    @PreAuthorize("hasRole('MEMBER')")
     public ResponseEntity<?> findWishlistByUserId(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size){
         Page<WishListResponse> items = wishlistImp.findByUserId(page,size);
         Map<String,Object> response = new HashMap<>();
@@ -102,5 +106,16 @@ public class WishlistController {
         response.put("isLast",items.isLast());
         response.put("wishListItem",items.getContent());
         return ResponseEntity.ok(BaseResponse.getResponse("Successfully",response));
+    }
+    @Operation(summary = "Delete item wishlist or create cart")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<?> deleteById(@PathVariable("id") int id,
+                                        @RequestParam(defaultValue = "false") Boolean isCreateCart){
+        wishlistImp.deleteWishList(id,isCreateCart);
+        String message = isCreateCart==true?"Create Cart Success":"Delete Success";
+
+        return ResponseEntity.ok(BaseResponse.getResponse("Success",message));
+
     }
 }
