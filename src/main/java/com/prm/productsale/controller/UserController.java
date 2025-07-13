@@ -74,6 +74,28 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
+  @Operation(
+          summary = "Get current user API",
+          description = "MEMBER can their info",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @GetMapping("/user-info")
+  @PreAuthorize("hasRole('MEMBER')")
+  public ResponseEntity<?> getCurrentUser() {
+    BaseResponse response =
+            new BaseResponse(200, "success", userServicesImp.getMyInfo());
+    return ResponseEntity.ok(response);
+  }
+
   // ============================
   // 2. Cấp nhật user
   // ============================
