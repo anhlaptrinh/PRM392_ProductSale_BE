@@ -1,5 +1,6 @@
 package com.prm.productsale.controller;
 
+import com.prm.productsale.dto.request.UserRequest;
 import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.serivceimp.UserServicesImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,6 +71,54 @@ public class UserController {
   public ResponseEntity<?> getUserByID(@PathVariable int userID) {
     BaseResponse response =
             new BaseResponse(200, "success", userServicesImp.getUserByID(userID));
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Get current user API",
+          description = "MEMBER can their info",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @GetMapping("/user-info")
+  @PreAuthorize("hasRole('MEMBER')")
+  public ResponseEntity<?> getCurrentUser() {
+    BaseResponse response =
+            new BaseResponse(200, "success", userServicesImp.getMyInfo());
+    return ResponseEntity.ok(response);
+  }
+
+  // ============================
+  // 2. Cấp nhật user
+  // ============================
+
+  @Operation(
+          summary = "Update user API",
+          description = "MEMBER can update their info",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  ),
+          }
+  )
+  @PutMapping()
+  @PreAuthorize("hasRole('MEMBER')")
+  public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest) {
+    BaseResponse response =
+            new BaseResponse(200, "success", userServicesImp.updateUser(userRequest));
     return ResponseEntity.ok(response);
   }
 }

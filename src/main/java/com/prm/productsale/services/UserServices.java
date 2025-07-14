@@ -11,5 +11,6 @@ public interface UserServices {
   UserResponse getUserByID(int userID);
   void register(UserRequest request, String verificationCode);
   void changePassword(String oldPassword, String newPassword);
+  UserResponse updateUser(UserRequest userRequest);
   Boolean forgotPassword(String email);
 }
