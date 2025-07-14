@@ -1,6 +1,7 @@
 package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.dto.response.PaymentResponse;
 import com.prm.productsale.entity.OrderEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
@@ -35,8 +36,14 @@ public class PaymentController {
     public ResponseEntity<?> createMomoPayment(@RequestParam int orderId) {
         try {
             OrderEntity order = orderService.getOrder(orderId);
-            String payUrl = momoService.createMomoPayment(order);
-            return ResponseEntity.ok(BaseResponse.getResponse("Payment URL generated", payUrl));
+            Map<String, Object> momoResult = momoService.createMomoPayment(order);
+            String payUrl = (String) momoResult.get("payUrl");
+            String qrCodeUrl = (String) momoResult.get("qrCodeUrl");
+
+            PaymentResponse paymentResponse = new PaymentResponse();
+            paymentResponse.setPaymentUrl(payUrl);
+            paymentResponse.setQrCodeUrl(qrCodeUrl);
+            return ResponseEntity.ok(BaseResponse.getResponse("Payment URL and QR generated", paymentResponse));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(BaseResponse.getResponse("Error", e.getMessage()));
         }

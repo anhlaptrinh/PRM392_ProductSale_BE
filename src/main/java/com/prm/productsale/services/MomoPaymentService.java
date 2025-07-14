@@ -25,7 +25,7 @@ public class MomoPaymentService {
     @Autowired
     private OrderServices orderService;
 
-    public String createMomoPayment(OrderEntity order) {
+    public Map<String, Object> createMomoPayment(OrderEntity order) {
         String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
         // ✅ Lấy key từ config cho chuẩn
@@ -92,7 +92,15 @@ public class MomoPaymentService {
         if (response.getStatusCode().is2xxSuccessful()) {
             Map<String, Object> resBody = response.getBody();
             if (resBody != null && resBody.containsKey("payUrl")) {
-                return resBody.get("payUrl").toString();
+                String payUrl = resBody.get("payUrl").toString();
+                String qrCodeUrl = "";
+                if (resBody.containsKey("qrCodeUrl")) {
+                    qrCodeUrl = resBody.get("qrCodeUrl").toString();
+                }
+                Map<String, Object> result = new HashMap<>();
+                result.put("payUrl", payUrl);
+                result.put("qrCodeUrl", qrCodeUrl);
+                return result;
             } else {
                 throw new RuntimeException("MoMo response missing payUrl: " + resBody);
             }
