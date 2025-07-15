@@ -4,98 +4,64 @@ import com.prm.productsale.dto.request.ReviewRequest;
 import com.prm.productsale.dto.request.VoteRequest;
 import com.prm.productsale.dto.response.ReviewResponse;
 import com.prm.productsale.dto.response.UserResponse;
-import com.prm.productsale.entity.ProductEntity;
-import com.prm.productsale.entity.ReviewEntity;
-import com.prm.productsale.entity.ReviewVoteEntity;
-import com.prm.productsale.entity.UserEntity;
+import com.prm.productsale.entity.*;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.mapper.ReviewMapper;
-import com.prm.productsale.repository.ProductRepo;
 import com.prm.productsale.repository.ReviewRepo;
 import com.prm.productsale.repository.ReviewVoteRepo;
-import com.prm.productsale.repository.UserRepo;
 import com.prm.productsale.services.ReviewServices;
+import com.prm.productsale.validator.ProductValidator;
+import com.prm.productsale.validator.ReviewValidator;
+import com.prm.productsale.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ReviewImp implements ReviewServices {
 
-  @Autowired
-  private ReviewRepo reviewRepo;
-
-  @Autowired
-  private ProductRepo productRepo;
-
-  @Autowired
-  private UserRepo userRepo;
-
-  @Autowired
-  private ReviewVoteRepo voteRepo;
-
-  @Autowired
-  private ReviewMapper reviewMapper;
-
-  @Autowired
-  private UserServicesImp userServicesImp;
-
-  // =========================
-  // 1. Các method "Read" / "List" (GET)
-  // =========================
+  @Autowired private ReviewRepo reviewRepo;
+  @Autowired private ReviewVoteRepo voteRepo;
+  @Autowired private ReviewMapper reviewMapper;
+  @Autowired private UserServicesImp userServicesImp;
+  @Autowired private UserValidator userValidator;
+  @Autowired private ReviewValidator reviewValidator;
+  @Autowired private ProductValidator productValidator;
 
   @Override
   public List<ReviewResponse> getByProductId(int productID) {
-    List<ReviewEntity> reviews = reviewRepo.findByProduct_IdOrderByCreatedAtDesc(productID);
-    return reviewMapper.toListReviewResponse(reviews);
+    return reviewMapper.toListReviewResponse(
+            reviewRepo.findByProduct_IdOrderByCreatedAtDesc(productID));
   }
-
-  // =========================
-  // 2. Các method "Create" (POST)
-  // =========================
 
   @Override
   public ReviewResponse createReview(ReviewRequest request) {
-    if (request.getRating() < 1 || request.getRating() > 5) {
-      throw new AppException(ErrorCode.RATING_OUT_OF_RANGE);
-    }
+    reviewValidator.validateRatingRange(request.getRating());
 
-    ProductEntity product = productRepo.findById(request.getProductID())
-            .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST_EXCEPTION));
+    ProductEntity product = productValidator.validateExist(request.getProductID());
 
     UserResponse userRes = userServicesImp.getMyInfo();
-    UserEntity user = userRepo.findById(userRes.getId())
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+    UserEntity user = userValidator.validateExist(userRes.getId());
 
-    boolean exists = reviewRepo.existsByProductAndUser(product, user);
-    if (exists) {
+    if (reviewRepo.existsByProductAndUser(product, user)) {
       throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
     }
 
     ReviewEntity entity = reviewMapper.toReviewEntity(request, product, user);
-    ReviewEntity saved = reviewRepo.save(entity);
-
-    return reviewMapper.toReviewResponse(saved);
+    return reviewMapper.toReviewResponse(reviewRepo.save(entity));
   }
 
   @Override
   public void vote(VoteRequest request) {
-    if (!request.getVoteType().equals("up") && !request.getVoteType().equals("down")) {
-      throw new AppException(ErrorCode.INVALID_VOTE_TYPE);
+    reviewValidator.validateVoteType(request.getVoteType());
+    ReviewEntity review = reviewValidator.validateExistAndNotDeleted(request.getReviewID());
+    UserEntity user = userValidator.validateExist(userServicesImp.getMyInfo().getId());
+
+    if (voteRepo.findByReviewAndUser(review, user).isPresent()) {
+      throw new AppException(ErrorCode.REVIEW_ALREADY_VOTED);
     }
-
-    ReviewEntity review = reviewRepo.findById(request.getReviewID())
-            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
-    checkIfReviewDeleted(review);
-
-    UserEntity user = userRepo.findById(userServicesImp.getMyInfo().getId())
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-
-    Optional<ReviewVoteEntity> existing = voteRepo.findByReviewAndUser(review, user);
-    if (existing.isPresent()) throw new AppException(ErrorCode.REVIEW_ALREADY_VOTED);
 
     ReviewVoteEntity vote = new ReviewVoteEntity();
     vote.setReview(review);
@@ -103,70 +69,41 @@ public class ReviewImp implements ReviewServices {
     vote.setVoteType(request.getVoteType());
     voteRepo.save(vote);
 
-    // Update HelpfulCount
     if ("up".equals(request.getVoteType())) {
       review.setHelpfulCount(review.getHelpfulCount() + 1);
     } else {
       review.setHelpfulCount(Math.max(0, review.getHelpfulCount() - 1));
     }
+
     reviewRepo.save(review);
-  }
-
-
-  // =========================
-  // 4. Các method "Delete" (DELETE) hoặc đặc biệt
-  // =========================
-
-  @Override
-  public void deleteOwnReview(int reviewID) {
-    UserResponse userResponse = userServicesImp.getMyInfo();
-
-    ReviewEntity reviewEntity = reviewRepo.findById(reviewID)
-            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
-
-    checkIfReviewDeleted(reviewEntity);
-
-    if (userResponse.getId() != reviewEntity.getUser().getId()) {
-      throw new AppException(ErrorCode.FORBIDDEN);
-    }
-
-    reviewEntity.setDeleted(true);
-    reviewRepo.save(reviewEntity);
   }
 
   @Override
   public void undoVote(int reviewId) {
-    ReviewEntity review = reviewRepo.findById(reviewId)
-            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
-
-    if (review.isDeleted()) {
-      throw new AppException(ErrorCode.REVIEW_ALREADY_DELETED);
-    }
-
-    UserEntity user = userRepo.findById(userServicesImp.getMyInfo().getId())
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+    ReviewEntity review = reviewValidator.validateExistAndNotDeleted(reviewId);
+    UserEntity user = userValidator.validateExist(userServicesImp.getMyInfo().getId());
 
     ReviewVoteEntity vote = voteRepo.findByReviewAndUser(review, user)
             .orElseThrow(() -> new AppException(ErrorCode.VOTE_NOT_FOUND));
 
-    // Xoá bản ghi vote
     voteRepo.delete(vote);
 
-    // Cập nhật HelpfulCount nếu là "up"
     if ("up".equalsIgnoreCase(vote.getVoteType())) {
       review.setHelpfulCount(Math.max(0, review.getHelpfulCount() - 1));
       reviewRepo.save(review);
     }
   }
 
+  @Override
+  public void deleteOwnReview(int reviewID) {
+    ReviewEntity review = reviewValidator.validateExistAndNotDeleted(reviewID);
+    int currentUserId = userServicesImp.getMyInfo().getId();
 
-  // =========================
-  // 5. Các method "Utility" (private helpers)
-  // =========================
-
-  private void checkIfReviewDeleted(ReviewEntity review) {
-    if (review.isDeleted()) {
-      throw new AppException(ErrorCode.REVIEW_ALREADY_DELETED);
+    if (review.getUser().getId() != currentUserId) {
+      throw new AppException(ErrorCode.FORBIDDEN);
     }
+
+    review.setDeleted(true);
+    reviewRepo.save(review);
   }
 }
