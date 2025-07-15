@@ -11,4 +11,5 @@ public interface ReviewServices {
   ReviewResponse createReview(ReviewRequest request);
   void vote(VoteRequest request);
   void deleteOwnReview(int reviewID);
+  void undoVote(int reviewID);
 }

@@ -4,7 +4,6 @@ import com.prm.productsale.dto.request.ReviewRequest;
 import com.prm.productsale.dto.request.VoteRequest;
 import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.serivceimp.ReviewImp;
-import com.prm.productsale.services.serivceimp.ReviewVoteImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -111,6 +110,29 @@ public class ReviewController {
     BaseResponse response =
             new BaseResponse(200, "success", "");
     reviewImp.vote(request);
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Undo vote",
+          description = "MEMBER can undo vote",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @PreAuthorize("hasRole('MEMBER')")
+  @DeleteMapping("/review-vote/{reviewID}")
+  public ResponseEntity<?> undoVote(@PathVariable int reviewID) {
+    BaseResponse response =
+            new BaseResponse(200, "success", "");
+    reviewImp.undoVote(reviewID);
     return ResponseEntity.ok(response);
   }
 }

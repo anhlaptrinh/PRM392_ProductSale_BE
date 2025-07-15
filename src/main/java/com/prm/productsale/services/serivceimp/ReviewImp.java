@@ -134,6 +134,32 @@ public class ReviewImp implements ReviewServices {
     reviewRepo.save(reviewEntity);
   }
 
+  @Override
+  public void undoVote(int reviewId) {
+    ReviewEntity review = reviewRepo.findById(reviewId)
+            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+    if (review.isDeleted()) {
+      throw new AppException(ErrorCode.REVIEW_ALREADY_DELETED);
+    }
+
+    UserEntity user = userRepo.findById(userServicesImp.getMyInfo().getId())
+            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+    ReviewVoteEntity vote = voteRepo.findByReviewAndUser(review, user)
+            .orElseThrow(() -> new AppException(ErrorCode.VOTE_NOT_FOUND));
+
+    // Xoá bản ghi vote
+    voteRepo.delete(vote);
+
+    // Cập nhật HelpfulCount nếu là "up"
+    if ("up".equalsIgnoreCase(vote.getVoteType())) {
+      review.setHelpfulCount(Math.max(0, review.getHelpfulCount() - 1));
+      reviewRepo.save(review);
+    }
+  }
+
+
   // =========================
   // 5. Các method "Utility" (private helpers)
   // =========================
