@@ -1,5 +1,6 @@
 package com.prm.productsale.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,10 @@ public class ReviewEntity {
 
   @Column(name = "Comment")
   String comment;
+
+  @JsonIgnore
+  @Column(name = "IsDeleted")
+  boolean isDeleted = false;
 
   @Column(name = "HelpfulCount")
   int helpfulCount = 0;

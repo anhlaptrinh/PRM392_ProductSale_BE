@@ -65,5 +65,28 @@ public class ReviewController {
             new BaseResponse(200, "success", reviewImp.createReview(request));
     return ResponseEntity.ok(response);
   }
+
+  @Operation(
+          summary = "Delete own review",
+          description = "MEMBER can delete their reviews",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @PreAuthorize("hasRole('MEMBER')")
+  @DeleteMapping("/{reviewID}")
+  public ResponseEntity<?> deleteOwnReview(@PathVariable int reviewID) {
+    BaseResponse response =
+            new BaseResponse(200, "success", "");
+    reviewImp.deleteOwnReview(reviewID);
+    return ResponseEntity.ok(response);
+  }
 }
 

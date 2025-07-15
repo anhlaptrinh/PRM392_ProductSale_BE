@@ -8,4 +8,5 @@ import java.util.List;
 public interface ReviewServices {
   List<ReviewResponse> getByProductId(int productId);
   ReviewResponse createReview(ReviewRequest request);
+  void deleteOwnReview(int reviewID);
 }

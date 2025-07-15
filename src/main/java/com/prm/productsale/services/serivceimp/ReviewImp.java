@@ -36,11 +36,19 @@ public class ReviewImp implements ReviewServices {
   @Autowired
   private UserServicesImp userServicesImp;
 
+  // =========================
+  // 1. Các method "Read" / "List" (GET)
+  // =========================
+
   @Override
   public List<ReviewResponse> getByProductId(int productID) {
     List<ReviewEntity> reviews = reviewRepo.findByProduct_IdOrderByCreatedAtDesc(productID);
     return reviewMapper.toListReviewResponse(reviews);
   }
+
+  // =========================
+  // 2. Các method "Create" (POST)
+  // =========================
 
   @Override
   public ReviewResponse createReview(ReviewRequest request) {
@@ -66,4 +74,34 @@ public class ReviewImp implements ReviewServices {
     return reviewMapper.toReviewResponse(saved);
   }
 
+  // =========================
+  // 4. Các method "Delete" (DELETE) hoặc đặc biệt
+  // =========================
+
+  @Override
+  public void deleteOwnReview(int reviewID) {
+    UserResponse userResponse = userServicesImp.getMyInfo();
+
+    ReviewEntity reviewEntity = reviewRepo.findById(reviewID)
+            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+
+    checkIfReviewDeleted(reviewEntity);
+
+    if (userResponse.getId() != reviewEntity.getUser().getId()) {
+      throw new AppException(ErrorCode.FORBIDDEN);
+    }
+
+    reviewEntity.setDeleted(true);
+    reviewRepo.save(reviewEntity);
+  }
+
+  // =========================
+  // 5. Các method "Utility" (private helpers)
+  // =========================
+
+  private void checkIfReviewDeleted(ReviewEntity review) {
+    if (review.isDeleted()) {
+      throw new AppException(ErrorCode.REVIEW_ALREADY_DELETED);
+    }
+  }
 }

@@ -56,7 +56,10 @@ public enum ErrorCode {
   // 5. Review-related (400 → ...)
   // ============================
   RATING_OUT_OF_RANGE(400, "RATING must be between 1 and 5", HttpStatus.BAD_REQUEST),
-  REVIEW_ALREADY_EXISTS(409, "You already reviewed this product", HttpStatus.BAD_REQUEST);
+  FORBIDDEN(403, "You are not allowed to delete this review", HttpStatus.FORBIDDEN),
+  REVIEW_NOT_FOUND(404, "Review not found", HttpStatus.NOT_FOUND),
+  REVIEW_ALREADY_EXISTS(409, "You already reviewed this product", HttpStatus.BAD_REQUEST),
+  REVIEW_ALREADY_DELETED(410, "This review has already been deleted", HttpStatus.GONE);
 
 
   private int code;
