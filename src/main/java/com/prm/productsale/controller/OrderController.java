@@ -2,8 +2,12 @@ package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.OrderRequest;
 import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.dto.response.OrderResponse;
 import com.prm.productsale.dto.response.PaymentResponse;
+import com.prm.productsale.dto.response.PaymentSuccessResponse;
 import com.prm.productsale.entity.OrderEntity;
+import com.prm.productsale.entity.PaymentEntity;
+import com.prm.productsale.repository.PaymentRepo;
 import com.prm.productsale.services.MomoPaymentService;
 import com.prm.productsale.services.serivceimp.OrderImp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -27,6 +32,8 @@ public class OrderController {
     OrderImp orderService;
     @Autowired
     private MomoPaymentService momoPaymentService;
+    @Autowired
+    private PaymentRepo paymentRepo;
     @Operation(
             summary = "Get all orders",
             description = "Returns a list of all orders placed by users",
@@ -98,8 +105,22 @@ public class OrderController {
             );
         }
 
-        // Bước 3: Nếu COD ➜ chỉ trả thông tin order
-        return ResponseEntity.noContent().build();
+    // Bước 3: Nếu COD ➜ trả thông tin order
+        PaymentSuccessResponse payment = new PaymentSuccessResponse();
+        payment.setOrderID(createdOrder.getId());
+        payment.setTotalAmount(createdOrder.getCart().getTotal());
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setPaymentStatus("PAID");
+    // Bạn có thể set thêm các trường khác nếu cần
+        PaymentEntity paymentEntity = new PaymentEntity();
+        paymentEntity.setOrderID(createdOrder.getId());
+        paymentEntity.setTotalAmount(createdOrder.getCart().getTotal());
+        paymentEntity.setPaymentDate(LocalDateTime.now());
+        paymentEntity.setPaymentStatus("PAID");
+        paymentRepo.save(paymentEntity);
+        return ResponseEntity.ok(
+                BaseResponse.getResponse("Tạo đơn hàng COD thành công", payment)
+        );
     }
 
     @Operation(
