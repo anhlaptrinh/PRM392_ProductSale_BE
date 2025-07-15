@@ -1,22 +1,26 @@
 package com.prm.productsale.services.serivceimp;
 
 import com.prm.productsale.dto.request.ReviewRequest;
+import com.prm.productsale.dto.request.VoteRequest;
 import com.prm.productsale.dto.response.ReviewResponse;
 import com.prm.productsale.dto.response.UserResponse;
 import com.prm.productsale.entity.ProductEntity;
 import com.prm.productsale.entity.ReviewEntity;
+import com.prm.productsale.entity.ReviewVoteEntity;
 import com.prm.productsale.entity.UserEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.mapper.ReviewMapper;
 import com.prm.productsale.repository.ProductRepo;
 import com.prm.productsale.repository.ReviewRepo;
+import com.prm.productsale.repository.ReviewVoteRepo;
 import com.prm.productsale.repository.UserRepo;
 import com.prm.productsale.services.ReviewServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewImp implements ReviewServices {
@@ -29,6 +33,9 @@ public class ReviewImp implements ReviewServices {
 
   @Autowired
   private UserRepo userRepo;
+
+  @Autowired
+  private ReviewVoteRepo voteRepo;
 
   @Autowired
   private ReviewMapper reviewMapper;
@@ -73,6 +80,38 @@ public class ReviewImp implements ReviewServices {
 
     return reviewMapper.toReviewResponse(saved);
   }
+
+  @Override
+  public void vote(VoteRequest request) {
+    if (!request.getVoteType().equals("up") && !request.getVoteType().equals("down")) {
+      throw new AppException(ErrorCode.INVALID_VOTE_TYPE);
+    }
+
+    ReviewEntity review = reviewRepo.findById(request.getReviewID())
+            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+    checkIfReviewDeleted(review);
+
+    UserEntity user = userRepo.findById(userServicesImp.getMyInfo().getId())
+            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+    Optional<ReviewVoteEntity> existing = voteRepo.findByReviewAndUser(review, user);
+    if (existing.isPresent()) throw new AppException(ErrorCode.REVIEW_ALREADY_VOTED);
+
+    ReviewVoteEntity vote = new ReviewVoteEntity();
+    vote.setReview(review);
+    vote.setUser(user);
+    vote.setVoteType(request.getVoteType());
+    voteRepo.save(vote);
+
+    // Update HelpfulCount
+    if ("up".equals(request.getVoteType())) {
+      review.setHelpfulCount(review.getHelpfulCount() + 1);
+    } else {
+      review.setHelpfulCount(Math.max(0, review.getHelpfulCount() - 1));
+    }
+    reviewRepo.save(review);
+  }
+
 
   // =========================
   // 4. Các method "Delete" (DELETE) hoặc đặc biệt
