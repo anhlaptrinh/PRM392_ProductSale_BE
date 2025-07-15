@@ -102,6 +102,23 @@ public class UserServicesImp implements UserServices {
     else throw new AppException(ErrorCode.PASSWORD_NOT_CORRECT);
   }
 
+  @Override
+  public UserResponse updateUser(UserRequest userRequest) {
+    UserResponse currentUser = getMyInfo();
+
+    UserEntity existingUser = userRepo.findByEmail(currentUser.getEmail())
+            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
+
+    // Chỉ cập nhật các field cho phép
+    existingUser.setUsername(userRequest.getUsername());
+    existingUser.setPhoneNumber(userRequest.getPhoneNumber());
+    existingUser.setAddress(userRequest.getAddress());
+
+    UserEntity updated = userRepo.save(existingUser);
+
+    return UserMapper.INSTANCE.toUserResponse(updated);
+  }
+
   // =========================
   // 4. Các method "Delete" (DELETE) hoặc đặc biệt
   // =========================

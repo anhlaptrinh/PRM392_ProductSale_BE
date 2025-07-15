@@ -63,4 +63,8 @@ public class UserEntity {
   @JsonIgnore
   @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
   List<NotificationEntity> notifications;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user")
+  List<ChatMessEntity> chatMessage;
 }
