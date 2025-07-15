@@ -50,8 +50,13 @@ public enum ErrorCode {
   // ============================
   // 5. Notification-related (400 → 403)
   // ============================
-  NOTIFICATION_NOT_FOUND(400, "notification not found", HttpStatus.BAD_REQUEST);
+  NOTIFICATION_NOT_FOUND(400, "notification not found", HttpStatus.BAD_REQUEST),
 
+  // ============================
+  // 5. Review-related (400 → ...)
+  // ============================
+  RATING_OUT_OF_RANGE(400, "RATING must be between 1 and 5", HttpStatus.BAD_REQUEST),
+  REVIEW_ALREADY_EXISTS(409, "You already reviewed this product", HttpStatus.BAD_REQUEST);
 
 
   private int code;

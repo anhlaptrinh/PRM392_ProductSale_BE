@@ -1,0 +1,69 @@
+package com.prm.productsale.controller;
+
+import com.prm.productsale.dto.request.ReviewRequest;
+import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.services.serivceimp.ReviewImp;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(value = "/api/reviews")
+@CrossOrigin
+@Tag(name = "Review API", description = "API for Review")
+public class ReviewController {
+
+  @Autowired
+  private ReviewImp reviewImp;
+
+  @Operation(
+          summary = "Get review list by productID",
+          description = "ADMIN or MEMBER can get review list by productID",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+  @GetMapping("/product/{productID}")
+  public ResponseEntity<?> getByProductId(@PathVariable int productID) {
+    BaseResponse response =
+            new BaseResponse(200, "success", reviewImp.getByProductId(productID));
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Create review ",
+          description = "ADMIN or MEMBER can create review",
+          responses = {
+                  @ApiResponse(
+                          responseCode = "200",
+                          description = "success",
+                          content = @Content(
+                                  mediaType = "application/json",
+                                  schema = @Schema(implementation = BaseResponse.class)
+                          )
+                  )
+          }
+  )
+  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+  @PostMapping()
+  public ResponseEntity<?> createReview(@RequestBody ReviewRequest request) {
+    BaseResponse response =
+            new BaseResponse(200, "success", reviewImp.createReview(request));
+    return ResponseEntity.ok(response);
+  }
+}
+
