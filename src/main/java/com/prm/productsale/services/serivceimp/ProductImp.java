@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Comparator;
-
+import com.prm.productsale.entity.WishlistEntity;
+import com.prm.productsale.entity.UserEntity;
+import com.prm.productsale.repository.WishlistRepo;
+import com.prm.productsale.services.LoginServices;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +29,11 @@ public class ProductImp implements ProductServices {
     CategoryRepo categoryRepo;
     @Autowired
     ProductMapper productMapper;
+    @Autowired
+    private WishlistRepo wishlistRepo;
+
+    @Autowired
+    private LoginServices loginServices;
 
     // =========================
     // 1. Các method "Read" / "List" (GET)
@@ -91,7 +99,25 @@ public class ProductImp implements ProductServices {
             }
         }
 
-        return productMapper.toListProductResponse(products);
+        UserEntity user = loginServices.getUser();
+        List<ProductResponse> responseList = products.stream()
+                .map(product -> {
+                    ProductResponse response = productMapper.toProductResponse(product);
+                    wishlistRepo.findByUserIdAndProductId(user.getId(), product.getId())
+                            .ifPresentOrElse(
+                                    wishlist -> {
+                                        response.setFavorite(true);
+                                        response.setWishlistId(wishlist.getId());
+                                    },
+                                    () -> {
+                                        response.setFavorite(false);
+                                        response.setWishlistId(null);
+                                    }
+                            );
+                    return response;
+                }).toList();
+
+        return responseList;
     }
 
     // =========================

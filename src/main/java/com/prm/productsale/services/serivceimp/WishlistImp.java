@@ -34,18 +34,34 @@ public class WishlistImp implements WishlistService {
     @Autowired
     private CartImp cartImp;
     @Override
+
+//    public void addToWishlist(int productId) {
+//        WishlistEntity wishlistEntity = new WishlistEntity();
+//        UserEntity user = loginServices.getUser();
+//        ProductEntity product = productRepo.findById(productId)
+//                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST_EXCEPTION));
+//        if(wishlistRepo.existsByProductId(productId)) throw new AppException(ErrorCode.DUPLICATE_WISHLIST);
+//        wishlistEntity.setUser(user);
+//
+//        wishlistEntity.setProduct(product);
+//        wishlistRepo.save(wishlistEntity);
+//
+//
+//    }
+
     public void addToWishlist(int productId) {
-        WishlistEntity wishlistEntity = new WishlistEntity();
         UserEntity user = loginServices.getUser();
         ProductEntity product = productRepo.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST_EXCEPTION));
-        if(wishlistRepo.existsByProductId(productId)) throw new AppException(ErrorCode.DUPLICATE_WISHLIST);
-        wishlistEntity.setUser(user);
 
+        if(wishlistRepo.existsByUserIdAndProductId(user.getId(), productId)) {
+            throw new AppException(ErrorCode.DUPLICATE_WISHLIST);
+        }
+
+        WishlistEntity wishlistEntity = new WishlistEntity();
+        wishlistEntity.setUser(user);
         wishlistEntity.setProduct(product);
         wishlistRepo.save(wishlistEntity);
-
-
     }
 
     @PreAuthorize("hasRole('ADMIN')")

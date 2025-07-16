@@ -16,7 +16,7 @@ public interface ProductMapper {
   // =========================
   // 1. Entity -> Response Mapping
   // =========================
-
+  @Mapping(source = "id", target = "productID")
   @Mapping(source = "category.categoryID", target = "categoryID")
   @Mapping(source = "category.categoryName", target = "categoryName", qualifiedByName = "nullToEmpty")
   @Mapping(source = "productName", target = "productName", qualifiedByName = "nullToEmpty")
