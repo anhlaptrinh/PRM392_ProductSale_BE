@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepo extends JpaRepository<ReviewEntity, Integer> {
-  List<ReviewEntity> findByProduct_IdOrderByCreatedAtDesc(int productId);
+  List<ReviewEntity> findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(int productId);
   boolean existsByProductAndUser(ProductEntity product, UserEntity user);
 }

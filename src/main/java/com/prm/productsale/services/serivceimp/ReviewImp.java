@@ -33,7 +33,7 @@ public class ReviewImp implements ReviewServices {
   @Override
   public List<ReviewResponse> getByProductId(int productID) {
     return reviewMapper.toListReviewResponse(
-            reviewRepo.findByProduct_IdOrderByCreatedAtDesc(productID));
+            reviewRepo.findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(productID));
   }
 
   @Override
