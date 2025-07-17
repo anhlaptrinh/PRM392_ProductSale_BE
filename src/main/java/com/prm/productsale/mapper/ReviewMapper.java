@@ -16,6 +16,7 @@ public interface ReviewMapper extends CommonMapUtils {
   @Mapping(source = "product.id", target = "productID")
   @Mapping(source = "user.id", target = "userID")
   @Mapping(source = "user.username", target = "username")
+  @Mapping(source = "user.email", target = "email")
   @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "formatDateTimeToString")
   ReviewResponse toReviewResponse(ReviewEntity entity);
 

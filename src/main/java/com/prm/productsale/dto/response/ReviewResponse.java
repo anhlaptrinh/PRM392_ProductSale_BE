@@ -14,6 +14,7 @@ public class ReviewResponse {
   int productID;
   int userID;
   String username;
+  String email;
   int rating;
   String comment;
   int helpfulCount;
