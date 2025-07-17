@@ -13,6 +13,11 @@ public class ReviewValidator {
   @Autowired
   private ReviewRepo reviewRepo;
 
+  public ReviewEntity validateReviewExist(int reviewId) {
+    return reviewRepo.findById(reviewId)
+            .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+  }
+
   public ReviewEntity validateExistAndNotDeleted(int reviewId) {
     ReviewEntity review = reviewRepo.findById(reviewId)
             .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));

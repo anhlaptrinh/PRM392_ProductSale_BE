@@ -66,7 +66,12 @@ public enum ErrorCode {
   // ============================
   INVALID_VOTE_TYPE(400, "Vote type must be 'up' or 'down'", HttpStatus.BAD_REQUEST),
   VOTE_NOT_FOUND(404, "You have not voted on this review", HttpStatus.NOT_FOUND),
-  REVIEW_ALREADY_VOTED(409, "You have already voted this review", HttpStatus.CONFLICT);
+  REVIEW_ALREADY_VOTED(409, "You have already voted this review", HttpStatus.CONFLICT),
+
+  // ============================
+  // 7. ReviewReply-related (400 → ...)
+  // ============================
+  REPLY_NOT_FOUND(404, "Reply not found", HttpStatus.NOT_FOUND);
 
 
   private int code;

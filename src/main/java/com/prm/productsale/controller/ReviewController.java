@@ -1,9 +1,11 @@
 package com.prm.productsale.controller;
 
+import com.prm.productsale.dto.request.ReviewReplyRequest;
 import com.prm.productsale.dto.request.ReviewRequest;
 import com.prm.productsale.dto.request.VoteRequest;
 import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.services.serivceimp.ReviewImp;
+import com.prm.productsale.services.serivceimp.ReviewReplyImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +24,8 @@ public class ReviewController {
 
   @Autowired
   private ReviewImp reviewImp;
+  @Autowired
+  private ReviewReplyImp replyImp;
 
   @Operation(
           summary = "Get review list by productID",
@@ -37,7 +41,7 @@ public class ReviewController {
                   )
           }
   )
-  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+//  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
   @GetMapping("/product/{productID}")
   public ResponseEntity<?> getByProductId(@PathVariable int productID) {
     BaseResponse response =
@@ -59,7 +63,7 @@ public class ReviewController {
                   )
           }
   )
-  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+//  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
   @PostMapping()
   public ResponseEntity<?> createReview(@RequestBody ReviewRequest request) {
     BaseResponse response =
@@ -81,7 +85,7 @@ public class ReviewController {
                   )
           }
   )
-  @PreAuthorize("hasRole('MEMBER')")
+//  @PreAuthorize("hasRole('MEMBER')")
   @DeleteMapping("/{reviewID}")
   public ResponseEntity<?> deleteOwnReview(@PathVariable int reviewID) {
     BaseResponse response =
@@ -104,7 +108,7 @@ public class ReviewController {
                   )
           }
   )
-  @PreAuthorize("hasRole('MEMBER')")
+//  @PreAuthorize("hasRole('MEMBER')")
   @PostMapping("/review-vote")
   public ResponseEntity<?> vote(@RequestBody VoteRequest request) {
     BaseResponse response =
@@ -127,12 +131,31 @@ public class ReviewController {
                   )
           }
   )
-  @PreAuthorize("hasRole('MEMBER')")
+//  @PreAuthorize("hasRole('MEMBER')")
   @DeleteMapping("/review-vote/{reviewID}")
   public ResponseEntity<?> undoVote(@PathVariable int reviewID) {
     BaseResponse response =
             new BaseResponse(200, "success", "");
     reviewImp.undoVote(reviewID);
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "Get replies for a review")
+//  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
+  @GetMapping("/{reviewId}/replies")
+  public ResponseEntity<?> getReplies(@PathVariable int reviewId) {
+    BaseResponse response =
+            new BaseResponse(200, "success", replyImp.getRepliesByReviewId(reviewId));
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "Create a reply for a review")
+//  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
+  @PostMapping("/{reviewId}/replies")
+  public ResponseEntity<?> createReply(@PathVariable int reviewId,
+                                       @RequestBody ReviewReplyRequest request) {
+    BaseResponse response =
+            new BaseResponse(200, "success", replyImp.createReply(reviewId, request));
     return ResponseEntity.ok(response);
   }
 }
