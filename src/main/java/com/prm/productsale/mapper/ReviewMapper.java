@@ -5,16 +5,18 @@ import com.prm.productsale.dto.response.ReviewResponse;
 import com.prm.productsale.entity.ProductEntity;
 import com.prm.productsale.entity.ReviewEntity;
 import com.prm.productsale.entity.UserEntity;
+import com.prm.productsale.utils.CommonMapUtils;
 import org.mapstruct.*;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface ReviewMapper {
+public interface ReviewMapper extends CommonMapUtils {
 
   @Mapping(source = "product.id", target = "productID")
   @Mapping(source = "user.id", target = "userID")
   @Mapping(source = "user.username", target = "username")
+  @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "formatDateTimeToString")
   ReviewResponse toReviewResponse(ReviewEntity entity);
 
   List<ReviewResponse> toListReviewResponse(List<ReviewEntity> entities);
@@ -26,3 +28,4 @@ public interface ReviewMapper {
   @Mapping(target = "user", source = "user")
   ReviewEntity toReviewEntity(ReviewRequest request, ProductEntity product, UserEntity user);
 }
+

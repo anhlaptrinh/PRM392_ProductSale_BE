@@ -17,5 +17,5 @@ public class ReviewResponse {
   int rating;
   String comment;
   int helpfulCount;
-  LocalDateTime createdAt;
+  String createdAt;
 }
