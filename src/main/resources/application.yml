@@ -37,3 +37,7 @@ mailServer:
   password: nhvx myku cczo nyao
   protocol: smtp
   isSSL: true
+
+  fcm:
+    server:
+      key=YOUR_KEY_HERE:

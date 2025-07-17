@@ -1,11 +1,11 @@
 package com.prm.productsale.services;
-
-import com.prm.productsale.entity.NotificationEntity;
 import java.util.List;
-
+import com.prm.productsale.entity.NotificationEntity;
+import com.prm.productsale.entity.UserEntity;
 public interface NotificationService {
-    void sendNotificationToUserByEmail(String email, String content);
-    List<NotificationEntity> getUserNotifications();
-    void markAsRead(int notificationId);
-    List<NotificationEntity> getAllNotifications();
+    void sendNotificationToToken(String token, String title, String body);
+    void saveNotification(NotificationEntity notification);
+    List<NotificationEntity> getNotificationByUser(UserEntity user);
+    void sendCartBadgeUpdateNotification(Long userId, int cartCount);
+
 }

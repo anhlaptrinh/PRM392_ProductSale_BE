@@ -1,5 +1,6 @@
 package com.prm.productsale.services.serivceimp;
 
+import com.prm.productsale.services.NotificationService;
 import com.prm.productsale.dto.request.CartItemRequest;
 import com.prm.productsale.dto.response.CartItemResponse;
 import com.prm.productsale.dto.response.UpdateQuantityResponse;
@@ -36,6 +37,19 @@ public class CartImp implements CartServices {
     ProductRepo productRepo;
     @Autowired
     CartRepo cartRepo;
+    @Autowired
+    private NotificationService notificationService;
+
+    private void sendCartBadgeUpdate() {
+        try {
+            Long userId = (long) loginServices.getUser().getId();
+            int cartCount = getItemCount();
+            notificationService.sendCartBadgeUpdateNotification(userId, cartCount);
+        } catch (Exception e) {
+            System.err.println("Error sending cart badge notification: " + e.getMessage());
+            // Có thể log thêm chi tiết nếu cần
+        }
+    }
 
     @Override
     public void createItem(CartItemRequest request) {
@@ -67,6 +81,8 @@ public class CartImp implements CartServices {
 
         // Cập nhật lại cart
         cartRepo.save(cart);
+        // Gửi notification cập nhật badge
+        sendCartBadgeUpdate();
 
     }
     @Transactional
@@ -93,6 +109,8 @@ public class CartImp implements CartServices {
         cart.setTotal(cartTotal);
         cartRepo.save(cart);
 
+        sendCartBadgeUpdate();
+
         return UpdateQuantityResponse.builder()
                 .itemId(item.getId())
                 .quantity(item.getQuantity())
@@ -115,6 +133,8 @@ public class CartImp implements CartServices {
 
         cart.setTotal(newTotal);
         cartRepo.save(cart);
+
+        sendCartBadgeUpdate();
 
     }
 
@@ -150,5 +170,7 @@ public class CartImp implements CartServices {
         CartEntity cart = loginServices.getCart();
         cart.setTotal(BigDecimal.ZERO);
         cartRepo.save(cart);
+
+        sendCartBadgeUpdate();
     }
 }
