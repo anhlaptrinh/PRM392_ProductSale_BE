@@ -2,10 +2,12 @@ package com.prm.productsale.services.serivceimp;
 
 import com.prm.productsale.dto.request.ReviewReplyRequest;
 import com.prm.productsale.dto.response.ReviewReplyResponse;
+import com.prm.productsale.dto.response.UserResponse;
 import com.prm.productsale.entity.ReviewEntity;
 import com.prm.productsale.entity.ReviewReplyEntity;
 import com.prm.productsale.entity.UserEntity;
 import com.prm.productsale.mapper.ReviewReplyMapper;
+import com.prm.productsale.mapper.UserMapper;
 import com.prm.productsale.repository.ReviewReplyRepo;
 import com.prm.productsale.repository.UserRepo;
 import com.prm.productsale.services.ReviewReplyServices;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewReplyImp implements ReviewReplyServices {
@@ -26,13 +29,19 @@ public class ReviewReplyImp implements ReviewReplyServices {
   @Autowired private ReviewReplyValidator replyValidator;
   @Autowired private UserValidator userValidator;
   @Autowired private ReviewValidator reviewValidator;
+  @Autowired private UserServicesImp userServicesImp;
 
   @Override
   public ReviewReplyResponse createReply(int reviewId, ReviewReplyRequest request) {
     ReviewEntity review = reviewValidator.validateReviewExist(reviewId);
-    UserEntity user = userValidator.validateExist(request.getRepliedBy());
+
+    UserResponse userResponse = userServicesImp.getMyInfo();
+    UserEntity user = userValidator.validateExist(userResponse.getId());
+
     ReviewReplyEntity entity = replyMapper.toEntity(request, review, user);
+
     reviewReplyRepo.save(entity);
+
     ReviewReplyResponse response = replyMapper.toResponse(entity);
     response.setUsername(user.getUsername());
     return response;

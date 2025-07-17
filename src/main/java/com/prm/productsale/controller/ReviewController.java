@@ -151,11 +151,11 @@ public class ReviewController {
 
   @Operation(summary = "Create a reply for a review")
   @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
-  @PostMapping("/{reviewId}/replies")
-  public ResponseEntity<?> createReply(@PathVariable int reviewId,
+  @PostMapping("/{reviewID}/replies")
+  public ResponseEntity<?> createReply(@PathVariable int reviewID,
                                        @RequestBody ReviewReplyRequest request) {
     BaseResponse response =
-            new BaseResponse(200, "success", replyImp.createReply(reviewId, request));
+            new BaseResponse(200, "success", replyImp.createReply(reviewID, request));
     return ResponseEntity.ok(response);
   }
 }
