@@ -17,7 +17,9 @@ import com.prm.productsale.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewImp implements ReviewServices {
@@ -41,12 +43,23 @@ public class ReviewImp implements ReviewServices {
     reviewValidator.validateRatingRange(request.getRating());
 
     ProductEntity product = productValidator.validateExist(request.getProductID());
-
     UserResponse userRes = userServicesImp.getMyInfo();
     UserEntity user = userValidator.validateExist(userRes.getId());
 
-    if (reviewRepo.existsByProductAndUser(product, user)) {
+    if (reviewRepo.existsByProductAndUserAndIsDeletedFalse(product, user)) {
       throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
+    }
+
+    // Nếu có review đã xóa → khôi phục
+    Optional<ReviewEntity> softDeleted = reviewRepo.findByProductAndUserAndIsDeletedTrue(product, user);
+    if (softDeleted.isPresent()) {
+      ReviewEntity review = softDeleted.get();
+      review.setComment(request.getComment());
+      review.setRating(request.getRating());
+      review.setDeleted(false);
+      review.setCreatedAt(LocalDateTime.now());
+      review.setHelpfulCount(0);
+      return reviewMapper.toReviewResponse(reviewRepo.save(review));
     }
 
     ReviewEntity entity = reviewMapper.toReviewEntity(request, product, user);

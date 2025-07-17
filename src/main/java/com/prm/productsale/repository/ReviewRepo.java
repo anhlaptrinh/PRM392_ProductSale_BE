@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReviewRepo extends JpaRepository<ReviewEntity, Integer> {
   List<ReviewEntity> findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(int productId);
-  boolean existsByProductAndUser(ProductEntity product, UserEntity user);
+  boolean existsByProductAndUserAndIsDeletedFalse(ProductEntity product, UserEntity user);
+  Optional<ReviewEntity> findByProductAndUserAndIsDeletedTrue(ProductEntity product, UserEntity user);
 }
