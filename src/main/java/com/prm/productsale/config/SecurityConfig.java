@@ -34,7 +34,6 @@ public class SecurityConfig {
           "/v3/api-docs.yaml",
           "/swagger-ui/**",
           "/swagger-ui.html",
-          "/api/reviews/**",
           "/api/authentication/login",
           "/api/authentication/forgot-password",
           "/api/authentication/register",

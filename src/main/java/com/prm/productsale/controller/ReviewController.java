@@ -41,7 +41,7 @@ public class ReviewController {
                   )
           }
   )
-//  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
   @GetMapping("/product/{productID}")
   public ResponseEntity<?> getByProductId(@PathVariable int productID) {
     BaseResponse response =
@@ -63,7 +63,7 @@ public class ReviewController {
                   )
           }
   )
-//  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
+  @PreAuthorize("hasAnyRole( 'MEMBER', 'ADMIN')")
   @PostMapping()
   public ResponseEntity<?> createReview(@RequestBody ReviewRequest request) {
     BaseResponse response =
@@ -85,7 +85,7 @@ public class ReviewController {
                   )
           }
   )
-//  @PreAuthorize("hasRole('MEMBER')")
+  @PreAuthorize("hasRole('MEMBER')")
   @DeleteMapping("/{reviewID}")
   public ResponseEntity<?> deleteOwnReview(@PathVariable int reviewID) {
     BaseResponse response =
@@ -108,7 +108,7 @@ public class ReviewController {
                   )
           }
   )
-//  @PreAuthorize("hasRole('MEMBER')")
+  @PreAuthorize("hasRole('MEMBER')")
   @PostMapping("/review-vote")
   public ResponseEntity<?> vote(@RequestBody VoteRequest request) {
     BaseResponse response =
@@ -131,7 +131,7 @@ public class ReviewController {
                   )
           }
   )
-//  @PreAuthorize("hasRole('MEMBER')")
+  @PreAuthorize("hasRole('MEMBER')")
   @DeleteMapping("/review-vote/{reviewID}")
   public ResponseEntity<?> undoVote(@PathVariable int reviewID) {
     BaseResponse response =
@@ -141,7 +141,7 @@ public class ReviewController {
   }
 
   @Operation(summary = "Get replies for a review")
-//  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
+  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
   @GetMapping("/{reviewId}/replies")
   public ResponseEntity<?> getReplies(@PathVariable int reviewId) {
     BaseResponse response =
@@ -150,7 +150,7 @@ public class ReviewController {
   }
 
   @Operation(summary = "Create a reply for a review")
-//  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
+  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
   @PostMapping("/{reviewId}/replies")
   public ResponseEntity<?> createReply(@PathVariable int reviewId,
                                        @RequestBody ReviewReplyRequest request) {
