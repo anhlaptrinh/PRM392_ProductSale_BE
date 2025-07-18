@@ -146,8 +146,8 @@ public class CartImp implements CartServices {
     @Transactional
     @Override
     public void deleteAll() {
-        cartItemRepo.deleteAll();
         CartEntity cart = loginServices.getCart();
+        cartItemRepo.deleteByCartId(cart.getId());
         cart.setTotal(BigDecimal.ZERO);
         cartRepo.save(cart);
     }

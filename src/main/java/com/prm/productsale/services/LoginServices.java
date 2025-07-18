@@ -89,7 +89,7 @@ public class LoginServices  {
     if (user == null) {
       throw new IllegalStateException("No authenticated user found.");
     }
-    Optional<CartEntity> cart = cartRepo.findByUserId(user.getId());
+    Optional<CartEntity> cart = cartRepo.findFirstByUser_IdAndStatusOrderByIdDesc(user.getId(), "ACTIVE");
     if(cart.isPresent()){
       return cart.get();
     }
