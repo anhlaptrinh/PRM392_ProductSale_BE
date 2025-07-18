@@ -18,5 +18,5 @@ public class ReviewReplyResponse {
   int repliedBy;
   String username;
   String replyText;
-  LocalDateTime repliedAt;
+  String repliedAt;
 }
