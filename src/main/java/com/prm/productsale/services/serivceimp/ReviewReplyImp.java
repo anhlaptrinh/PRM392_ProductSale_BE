@@ -58,6 +58,7 @@ public class ReviewReplyImp implements ReviewReplyServices {
     for (ReviewReplyResponse resp : responses) {
       UserEntity user = userValidator.validateExist(resp.getRepliedBy());
       resp.setUsername(user.getUsername());
+      resp.setEmail(user.getEmail());
     }
     return responses;
   }

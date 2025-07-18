@@ -17,6 +17,7 @@ public class ReviewReplyResponse {
   int reviewID;
   int repliedBy;
   String username;
+  String email;
   String replyText;
   String repliedAt;
 }
