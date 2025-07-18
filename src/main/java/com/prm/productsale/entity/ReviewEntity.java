@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "Reviews")
 @Data
@@ -41,4 +42,7 @@ public class ReviewEntity {
 
   @Column(name = "CreatedAt")
   LocalDateTime createdAt = LocalDateTime.now();
+
+  @OneToMany(mappedBy = "review")
+  List<ReviewVoteEntity> votes;
 }

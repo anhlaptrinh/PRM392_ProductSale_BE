@@ -3,6 +3,7 @@ package com.prm.productsale.services.serivceimp;
 import com.prm.productsale.dto.request.ReviewRequest;
 import com.prm.productsale.dto.request.VoteRequest;
 import com.prm.productsale.dto.response.ReviewResponse;
+import com.prm.productsale.dto.response.ReviewVoteResponse;
 import com.prm.productsale.dto.response.UserResponse;
 import com.prm.productsale.entity.*;
 import com.prm.productsale.exception.AppException;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +36,17 @@ public class ReviewImp implements ReviewServices {
 
   @Override
   public List<ReviewResponse> getByProductId(int productID) {
-    return reviewMapper.toListReviewResponse(
-            reviewRepo.findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(productID));
+    List<ReviewEntity> reviewEntities = reviewRepo.findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(productID);
+    List<ReviewResponse> responses = new ArrayList<>();
+
+    for (ReviewEntity entity : reviewEntities) {
+      ReviewResponse dto = reviewMapper.toReviewResponse(entity);
+      List<ReviewVoteResponse> votes = reviewMapper.toVoteResponseList(entity.getVotes());
+      dto.setVoteList(votes);
+      responses.add(dto);
+    }
+
+    return responses;
   }
 
   @Override
