@@ -1,12 +1,13 @@
 package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.OrderRequest;
-import com.prm.productsale.dto.response.BaseResponse;
-import com.prm.productsale.dto.response.OrderResponse;
-import com.prm.productsale.dto.response.PaymentResponse;
-import com.prm.productsale.dto.response.PaymentSuccessResponse;
+import com.prm.productsale.dto.request.ReorderRequest;
+import com.prm.productsale.dto.response.*;
+import com.prm.productsale.entity.CartEntity;
+import com.prm.productsale.entity.CartItemEntity;
 import com.prm.productsale.entity.OrderEntity;
 import com.prm.productsale.entity.PaymentEntity;
+import com.prm.productsale.repository.CartRepo;
 import com.prm.productsale.repository.PaymentRepo;
 import com.prm.productsale.services.MomoPaymentService;
 import com.prm.productsale.services.serivceimp.OrderImp;
@@ -21,7 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/orders")
@@ -68,7 +71,16 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable int id) {
         OrderEntity order = orderService.getOrder(id);
-        return ResponseEntity.ok(BaseResponse.getResponse("Success", order));
+        OrderDetailResponse response = new OrderDetailResponse(
+                order.getId(),
+                order.getOrderStatus(),
+                order.getPmMethod(),
+                order.getBill(),
+                order.getOrderDate(),
+                order.getCart().getUser().getAddress(),
+                order.getCart().getTotal()
+        );
+        return ResponseEntity.ok(BaseResponse.getResponse("Success", response));
     }
 
     @Operation(
@@ -100,6 +112,9 @@ public class OrderController {
             paymentResponse.setPaymentUrl(payUrl);
             paymentResponse.setQrCodeUrl(qrCodeUrl);
 
+            // ✅ Sau khi tạo response, update cart thành INACTIVE
+            orderService.markCartInactive(createdOrder.getCart());
+
             return ResponseEntity.ok(
                     BaseResponse.getResponse("Tạo thanh toán MOMO thành công", paymentResponse)
             );
@@ -111,13 +126,17 @@ public class OrderController {
         payment.setTotalAmount(createdOrder.getCart().getTotal());
         payment.setPaymentDate(LocalDateTime.now());
         payment.setPaymentStatus("PAID");
-    // Bạn có thể set thêm các trường khác nếu cần
+    // set PaymentEntity de luu vao DB
         PaymentEntity paymentEntity = new PaymentEntity();
         paymentEntity.setOrderID(createdOrder.getId());
         paymentEntity.setTotalAmount(createdOrder.getCart().getTotal());
         paymentEntity.setPaymentDate(LocalDateTime.now());
         paymentEntity.setPaymentStatus("PAID");
         paymentRepo.save(paymentEntity);
+
+        // ✅ Sau khi xử lý thanh toán COD xong, update cart thành INACTIVE
+        orderService.markCartInactive(createdOrder.getCart());
+
         return ResponseEntity.ok(
                 BaseResponse.getResponse("Tạo đơn hàng COD thành công", payment)
         );
@@ -125,7 +144,7 @@ public class OrderController {
 
     @Operation(
             summary = "Update an existing order",
-            description = "Update order details by ID",
+            description = "Update order Status by ID",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Order updated",
                             content = @Content(schema = @Schema(implementation = BaseResponse.class))),
@@ -133,10 +152,9 @@ public class OrderController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(
-            @PathVariable Long id,
-            @RequestBody  OrderRequest request) {
-        return ResponseEntity.ok("");
+    public ResponseEntity<?> updateOrder(@PathVariable int id) {
+        orderService.updateOrder(id);
+        return ResponseEntity.ok(BaseResponse.getResponse("Order updated", null));
     }
 
     @Operation(
@@ -178,4 +196,65 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.getResponse("Status change to: "+status,""));
     }
 
+    @Operation(
+            summary = "Get all orders",
+            description = "Returns a list of all orders placed by users",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Fetched orders successfully",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = BaseResponse.class)))
+                    )
+            }
+    )
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderHistoryResponse>> getOrderHistory(@PathVariable int userId) {
+        List<OrderHistoryResponse> orders = orderService.getOrdersByUserId(userId);
+        return ResponseEntity.ok(orders);
+    }
+    @Operation(
+            summary = "Get all cart items in order ",
+            description = "Returns a list of all items in order placed by users",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Fetched orders successfully",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = BaseResponse.class)))
+                    )
+            }
+    )
+    @GetMapping("/{orderId}/items")
+    public ResponseEntity<List<CartItemFlatResponse>> getOrderItems(@PathVariable int orderId) {
+        List<CartItemEntity> items = orderService.getCartItemsByOrderId(orderId);
+        List<CartItemFlatResponse> response = items.stream()
+                .map(item -> new CartItemFlatResponse(
+                        item.getId(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getProduct().getId(),
+                        item.getProduct().getProductName(),
+                        item.getProduct().getImageURL()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Reorder an order",
+            description = "User can reorder an  order",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Order found"),
+                    @ApiResponse(responseCode = "404", description = "Order not found")
+            }
+    )
+    @PostMapping("/reorder")
+    public ResponseEntity<?> reorder(@RequestBody ReorderRequest request) {
+
+        orderService.reorder(request);
+        return ResponseEntity.ok(BaseResponse.getResponse("Added to cart", true));
+    }
 }

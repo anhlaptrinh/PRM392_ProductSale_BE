@@ -130,11 +130,13 @@ public class CartImp implements CartServices {
 
     @Override
     public BigDecimal getTotalAmount() {
-        CartEntity cart =
-                cartRepo.findByUserId(loginServices.getUser().getId()).orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
-        return cart.getTotal();
+        List<CartEntity> cart =
+                cartRepo.findByUser_IdAndStatus(loginServices.getUser().getId(), "ACTIVE");
+        if(cart.isEmpty()){
+            return BigDecimal.ZERO;
+        }
+        return cart.get(0).getTotal();
     }
-
     @Override
     public int getItemCount() {
         CartEntity cart = loginServices.getCart();
@@ -146,8 +148,8 @@ public class CartImp implements CartServices {
     @Transactional
     @Override
     public void deleteAll() {
-        cartItemRepo.deleteAll();
         CartEntity cart = loginServices.getCart();
+        cartItemRepo.deleteByCartId(cart.getId());
         cart.setTotal(BigDecimal.ZERO);
         cartRepo.save(cart);
     }

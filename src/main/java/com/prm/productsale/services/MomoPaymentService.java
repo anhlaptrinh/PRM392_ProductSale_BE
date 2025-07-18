@@ -140,11 +140,11 @@ public class MomoPaymentService {
 
         int orderId = Integer.parseInt(orderIdStr.split("-")[0]);
         if ("0".equals(resultCode)) {
-            orderService.editStatus(orderId, "PAID");
+            orderService.editStatus(orderId, "shipping");
             OrderEntity order = orderService.getOrder(orderId);
             int userId = order.getUser().getId();
             // orderService.clearCartByUserId(userId); // nếu có
-            System.out.println("Order " + orderId + " PAID");
+            System.out.println("Order " + orderId + " shipping");
         } else {
             orderService.editStatus(orderId, "FAILED");
             System.out.println("Order " + orderId + " FAILED");

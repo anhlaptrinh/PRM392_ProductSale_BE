@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -89,9 +90,15 @@ public class LoginServices  {
     if (user == null) {
       throw new IllegalStateException("No authenticated user found.");
     }
-    Optional<CartEntity> cart = cartRepo.findByUserId(user.getId());
-    if(cart.isPresent()){
-      return cart.get();
+    List<CartEntity> activeCarts = cartRepo.findByUser_IdAndStatus(user.getId(), "ACTIVE");
+
+    if (!activeCarts.isEmpty()) {
+      if (activeCarts.size() > 1) {
+        // Bạn có thể log hoặc xử lý tùy ý
+        System.out.println("⚠ Warning: Có nhiều hơn 1 cart ACTIVE cho user ID " + user.getId());
+      }
+
+      return activeCarts.get(0); // lấy cái đầu tiên (hoặc thêm logic chọn cart gần nhất)
     }
     CartEntity cartEntity = new CartEntity();
     cartEntity.setUser(user);
