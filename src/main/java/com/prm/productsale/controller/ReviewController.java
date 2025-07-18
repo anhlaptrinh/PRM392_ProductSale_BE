@@ -158,5 +158,15 @@ public class ReviewController {
             new BaseResponse(200, "success", replyImp.createReply(reviewID, request));
     return ResponseEntity.ok(response);
   }
+
+  @Operation(summary = "Delete a reply by ID")
+  @PreAuthorize("hasAnyRole('MEMBER','ADMIN')")
+  @DeleteMapping("/{replyID}/replies")
+  public ResponseEntity<?> deleteReplyById(@PathVariable int replyID) {
+    BaseResponse response =
+            new BaseResponse(200, "success", "");
+    replyImp.deleteReplyById(replyID);
+    return ResponseEntity.ok(response);
+  }
 }
 

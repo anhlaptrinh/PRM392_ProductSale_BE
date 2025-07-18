@@ -61,4 +61,10 @@ public class ReviewReplyImp implements ReviewReplyServices {
     }
     return responses;
   }
+
+  @Override
+  public void deleteReplyById(int replyID) {
+    ReviewReplyEntity replyEntity = replyValidator.validateExistAndNotDeleted(replyID);
+    reviewReplyRepo.delete(replyEntity);
+  }
 }
