@@ -2,6 +2,13 @@ package com.prm.productsale.controller;
 
 import com.prm.productsale.dto.request.OrderRequest;
 import com.prm.productsale.dto.response.BaseResponse;
+import com.prm.productsale.dto.response.OrderResponse;
+import com.prm.productsale.dto.response.PaymentResponse;
+import com.prm.productsale.dto.response.PaymentSuccessResponse;
+import com.prm.productsale.entity.OrderEntity;
+import com.prm.productsale.entity.PaymentEntity;
+import com.prm.productsale.repository.PaymentRepo;
+import com.prm.productsale.services.MomoPaymentService;
 import com.prm.productsale.services.serivceimp.OrderImp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/api/orders")
 @CrossOrigin
@@ -20,6 +30,10 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     @Autowired
     OrderImp orderService;
+    @Autowired
+    private MomoPaymentService momoPaymentService;
+    @Autowired
+    private PaymentRepo paymentRepo;
     @Operation(
             summary = "Get all orders",
             description = "Returns a list of all orders placed by users",
@@ -53,7 +67,8 @@ public class OrderController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable int id) {
-        return ResponseEntity.ok("");
+        OrderEntity order = orderService.getOrder(id);
+        return ResponseEntity.ok(BaseResponse.getResponse("Success", order));
     }
 
     @Operation(
@@ -71,8 +86,41 @@ public class OrderController {
     )
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest request) {
-        BaseResponse response = BaseResponse.getResponse( "Order created","");
-        return ResponseEntity.ok(response);
+        // Bước 1: Tạo OrderEntity
+        OrderEntity createdOrder = orderService.createOrder(request);
+
+        // Bước 2: Nếu MOMO thì gọi MomoPaymentService
+        if ("MOMO".equalsIgnoreCase(request.getPaymentMethod())) {
+            Map<String, Object> momoResult = momoPaymentService.createMomoPayment(createdOrder);
+
+            String payUrl = (String) momoResult.get("payUrl");
+            String qrCodeUrl = (String) momoResult.get("qrCodeUrl");
+
+            PaymentResponse paymentResponse = new PaymentResponse();
+            paymentResponse.setPaymentUrl(payUrl);
+            paymentResponse.setQrCodeUrl(qrCodeUrl);
+
+            return ResponseEntity.ok(
+                    BaseResponse.getResponse("Tạo thanh toán MOMO thành công", paymentResponse)
+            );
+        }
+
+    // Bước 3: Nếu COD ➜ trả thông tin order
+        PaymentSuccessResponse payment = new PaymentSuccessResponse();
+        payment.setOrderID(createdOrder.getId());
+        payment.setTotalAmount(createdOrder.getCart().getTotal());
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setPaymentStatus("PAID");
+    // Bạn có thể set thêm các trường khác nếu cần
+        PaymentEntity paymentEntity = new PaymentEntity();
+        paymentEntity.setOrderID(createdOrder.getId());
+        paymentEntity.setTotalAmount(createdOrder.getCart().getTotal());
+        paymentEntity.setPaymentDate(LocalDateTime.now());
+        paymentEntity.setPaymentStatus("PAID");
+        paymentRepo.save(paymentEntity);
+        return ResponseEntity.ok(
+                BaseResponse.getResponse("Tạo đơn hàng COD thành công", payment)
+        );
     }
 
     @Operation(
@@ -129,4 +177,5 @@ public class OrderController {
         orderService.editStatus(id,status);
         return ResponseEntity.ok(BaseResponse.getResponse("Status change to: "+status,""));
     }
+
 }

@@ -109,7 +109,11 @@
 			<version>1.5.5.Final</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.16.1</version> <!-- hoặc bản mới nhất -->
+		</dependency>
 	</dependencies>
 
 	<build>
