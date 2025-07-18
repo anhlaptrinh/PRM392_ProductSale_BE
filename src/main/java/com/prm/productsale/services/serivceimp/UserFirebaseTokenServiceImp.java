@@ -4,7 +4,7 @@ import com.prm.productsale.entity.UserFirebaseToken;
 import com.prm.productsale.repository.UserFirebaseTokenRepo;
 import com.prm.productsale.services.UserFirebaseTokenService;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Service
@@ -28,5 +28,9 @@ public class UserFirebaseTokenServiceImp implements UserFirebaseTokenService {
     @Override
     public UserFirebaseToken getTokenByUserId(Long userId) {
         return tokenRepo.findByUserId(userId).orElse(null);
+    }
+    @Override
+    public List<UserFirebaseToken> getAllTokens() {
+        return tokenRepo.findAll();
     }
 }

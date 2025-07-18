@@ -173,4 +173,14 @@ public class CartImp implements CartServices {
 
         sendCartBadgeUpdate();
     }
+    @Override
+    public int getItemCountByUserId(Long userId) {
+        Optional<CartEntity> cartOpt = cartRepo.findByUserId(userId.intValue());
+        if (cartOpt.isPresent()) {
+            return cartItemRepo.findByCartId(cartOpt.get().getId()).stream()
+                    .mapToInt(CartItemEntity::getQuantity)
+                    .sum();
+        }
+        return 0;
+    }
 }

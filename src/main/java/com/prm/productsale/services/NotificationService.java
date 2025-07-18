@@ -6,6 +6,6 @@ public interface NotificationService {
     void sendNotificationToToken(String token, String title, String body);
     void saveNotification(NotificationEntity notification);
     List<NotificationEntity> getNotificationByUser(UserEntity user);
-    void sendCartBadgeUpdateNotification(Long userId, int cartCount);
+    void sendCartBadgeUpdateNotification(Long userId, Integer cartCount);
 
 }

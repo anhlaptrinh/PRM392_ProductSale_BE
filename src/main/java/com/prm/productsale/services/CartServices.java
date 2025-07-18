@@ -16,4 +16,6 @@ public interface CartServices {
     BigDecimal getTotalAmount();
     void deleteAll();
     int getItemCount();
+    int getItemCountByUserId(Long userId);
+
 }

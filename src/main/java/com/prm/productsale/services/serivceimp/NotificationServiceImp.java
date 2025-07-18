@@ -27,19 +27,20 @@ public class NotificationServiceImp implements NotificationService {
 
     @Override
     public void sendNotificationToToken(String token, String title, String body) {
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
-
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(notification)
+                .putData("title", title)
+                .putData("body", body)
+                .putData("type", "cart_update")
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build()
+                )
                 .build();
-
         try {
             String response = FirebaseMessaging.getInstance().send(message);
-            System.out.println("Sent message: " + response);
+            System.out.println("Sent message with data: " + response);
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
@@ -49,7 +50,11 @@ public class NotificationServiceImp implements NotificationService {
         notificationRepo.save(notification);
     }
     @Override
-    public void sendCartBadgeUpdateNotification(Long userId, int cartCount) {
+    public void sendCartBadgeUpdateNotification(Long userId, Integer cartCount) {
+        if (cartCount == null) {
+            cartCount = 0;
+        }
+
         Optional<UserFirebaseToken> userTokenOpt = Optional.ofNullable(tokenService.getTokenByUserId(userId));
         if (userTokenOpt.isPresent()) {
             String token = userTokenOpt.get().getFcmToken();
