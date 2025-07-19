@@ -35,6 +35,11 @@ build/
 
 mysql-data/*
 !mysql-data/.gitkeep
+
 redis-data/*
+
+
+
+src/main/resources/productsaleprm392-60b46-firebase-adminsdk-fbsvc-0a2e04e6cd.json
 
 

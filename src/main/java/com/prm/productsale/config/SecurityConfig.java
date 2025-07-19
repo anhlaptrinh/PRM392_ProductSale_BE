@@ -34,13 +34,14 @@ public class SecurityConfig {
           "/v3/api-docs.yaml",
           "/swagger-ui/**",
           "/swagger-ui.html",
-          "/api/store-locations/**",
           "/api/authentication/login",
           "/api/authentication/forgot-password",
           "/api/authentication/register",
           "/api/authentication/verification-code",
-
-          "/api/mobile/cart"
+          "/api/products/**",
+          "/api/mobile/cart",
+          "/api/payment/**",
+          "/api/orders/**"
 
 
   };

@@ -4,6 +4,7 @@ import org.mapstruct.Named;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public interface CommonMapUtils {
@@ -52,5 +53,10 @@ public interface CommonMapUtils {
     @Named("trimString")
     default String trimString(String value) {
         return value == null ? null : value.trim();
+    }
+
+    @Named("formatDateTimeToString")
+    default String formatDateTimeToString(LocalDateTime dateTime) {
+        return dateTime == null ? "" : dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }

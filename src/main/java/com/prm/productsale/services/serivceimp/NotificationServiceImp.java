@@ -1,69 +1,73 @@
 package com.prm.productsale.services.serivceimp;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.prm.productsale.repository.NotificationRepo;
-import com.prm.productsale.repository.UserRepo;
+import com.prm.productsale.entity.UserFirebaseToken;
+import com.prm.productsale.services.UserFirebaseTokenService;
+import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prm.productsale.services.NotificationService;
-import com.prm.productsale.services.LoginServices;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import com.prm.productsale.entity.NotificationEntity;
 import com.prm.productsale.entity.UserEntity;
-import com.prm.productsale.exception.AppException;
-import com.prm.productsale.exception.ErrorCode;
-import java.util.ArrayList;
-import java.util.Comparator;
+import com.prm.productsale.repository.NotificationRepo;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.firebase.messaging.*;
 
 @Service
 public class NotificationServiceImp implements NotificationService {
-    @Autowired
-    private NotificationRepo notificationRepo;
 
-    @Autowired
-    private UserRepo userRepo;
+    private final NotificationRepo notificationRepo;
+    private final UserFirebaseTokenService tokenService;
 
-    @Autowired
-    private LoginServices loginServices;
+    public NotificationServiceImp(NotificationRepo notificationRepo, UserFirebaseTokenService tokenService) {
+        this.notificationRepo = notificationRepo;
+        this.tokenService = tokenService;
+    }
 
     @Override
-    public void sendNotificationToUserByEmail(String email, String content) {
-        UserEntity user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
-
-        NotificationEntity notification = new NotificationEntity();
-        notification.setContent(content);
-        notification.setUser(user);
+    public void sendNotificationToToken(String token, String title, String body) {
+        Message message = Message.builder()
+                .setToken(token)
+                .putData("title", title)
+                .putData("body", body)
+                .putData("type", "cart_update")
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build()
+                )
+                .build();
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            System.out.println("Sent message with data: " + response);
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void saveNotification(NotificationEntity notification) {
         notificationRepo.save(notification);
     }
-
-
     @Override
-    public List<NotificationEntity> getUserNotifications() {
-        int userId = loginServices.getUser().getId();
-        return notificationRepo.findByUserIdOrderByCreatedAtDesc(userId);
-    }
-    @Override
-    public List<NotificationEntity> getAllNotifications() {
-        List<UserEntity> users = userRepo.findAll();
-
-        List<NotificationEntity> allNotifications = new ArrayList<>();
-
-        for (UserEntity user : users) {
-            allNotifications.addAll(user.getNotifications()); // cần getNotifications()
+    public void sendCartBadgeUpdateNotification(Long userId, Integer cartCount) {
+        if (cartCount == null) {
+            cartCount = 0;
         }
 
-        allNotifications.sort(Comparator.comparing(NotificationEntity::getCreatedAt).reversed());
+        Optional<UserFirebaseToken> userTokenOpt = Optional.ofNullable(tokenService.getTokenByUserId(userId));
+        if (userTokenOpt.isPresent()) {
+            String token = userTokenOpt.get().getFcmToken();
+            String title = "Cập nhật giỏ hàng";
+            String body = "Số lượng sản phẩm trong giỏ hàng: " + cartCount;
 
-        return allNotifications;
+            sendNotificationToToken(token, title, body);
+        } else {
+            System.out.println("No FCM token found for userId: " + userId);
+        }
     }
-
-
     @Override
-    public void markAsRead(int notificationId) {
-        NotificationEntity notification = notificationRepo.findById(notificationId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
-        notification.setRead(true);
-        notificationRepo.save(notification);
+    public List<NotificationEntity> getNotificationByUser(UserEntity user) {
+        return notificationRepo.findByUser(user);
     }
 }

@@ -18,4 +18,6 @@ public class ProductResponse {
     String imageURL;
     int categoryID;
     String categoryName;
+    Boolean favorite;
+    Integer wishlistId;
 }

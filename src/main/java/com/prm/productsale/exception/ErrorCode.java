@@ -50,8 +50,28 @@ public enum ErrorCode {
   // ============================
   // 5. Notification-related (400 → 403)
   // ============================
-  NOTIFICATION_NOT_FOUND(400, "notification not found", HttpStatus.BAD_REQUEST);
+  NOTIFICATION_NOT_FOUND(400, "notification not found", HttpStatus.BAD_REQUEST),
 
+  // ============================
+  // 5. Review-related (400 → ...)
+  // ============================
+  RATING_OUT_OF_RANGE(400, "RATING must be between 1 and 5", HttpStatus.BAD_REQUEST),
+  FORBIDDEN(403, "You are not allowed to delete this review", HttpStatus.FORBIDDEN),
+  REVIEW_NOT_FOUND(404, "Review not found", HttpStatus.NOT_FOUND),
+  REVIEW_ALREADY_EXISTS(409, "You already reviewed this product", HttpStatus.BAD_REQUEST),
+  REVIEW_ALREADY_DELETED(410, "This review has already been deleted", HttpStatus.GONE),
+
+  // ============================
+  // 6. ReviewVote-related (400 → ...)
+  // ============================
+  INVALID_VOTE_TYPE(400, "Vote type must be 'up' or 'down'", HttpStatus.BAD_REQUEST),
+  VOTE_NOT_FOUND(404, "You have not voted on this review", HttpStatus.NOT_FOUND),
+  REVIEW_ALREADY_VOTED(409, "You have already voted this review", HttpStatus.CONFLICT),
+
+  // ============================
+  // 7. ReviewReply-related (400 → ...)
+  // ============================
+  REPLY_NOT_FOUND(404, "Reply not found", HttpStatus.NOT_FOUND);
 
 
   private int code;
