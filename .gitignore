@@ -35,6 +35,6 @@ build/
 
 mysql-data/*
 !mysql-data/.gitkeep
-
+redis-data/*
 
 
