@@ -19,7 +19,6 @@ public interface ProductMapper {
   @Mapping(source = "id", target = "productID")
   @Mapping(source = "category.categoryID", target = "categoryID")
   @Mapping(source = "category.categoryName", target = "categoryName", qualifiedByName = "nullToEmpty")
-  @Mapping(source = "id", target = "productID")
   @Mapping(source = "productName", target = "productName", qualifiedByName = "nullToEmpty")
   @Mapping(source = "briDesc", target = "briDesc", qualifiedByName = "nullToEmpty")
   @Mapping(source = "fullDesc", target = "fullDesc", qualifiedByName = "nullToEmpty")
