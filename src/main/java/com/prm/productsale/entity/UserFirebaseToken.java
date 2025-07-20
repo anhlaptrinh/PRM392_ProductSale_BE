@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "userfirebasetoken")
 public class UserFirebaseToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
