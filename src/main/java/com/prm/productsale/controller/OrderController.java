@@ -111,6 +111,7 @@ public class OrderController {
             PaymentResponse paymentResponse = new PaymentResponse();
             paymentResponse.setPaymentUrl(payUrl);
             paymentResponse.setQrCodeUrl(qrCodeUrl);
+            paymentResponse.setOrderID(createdOrder.getId());
 
             // ✅ Sau khi tạo response, update cart thành INACTIVE
             orderService.markCartInactive(createdOrder.getCart());
