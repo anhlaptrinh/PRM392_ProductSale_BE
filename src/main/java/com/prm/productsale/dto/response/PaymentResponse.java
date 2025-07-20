@@ -3,6 +3,15 @@ package com.prm.productsale.dto.response;
 public class PaymentResponse {
     private String paymentUrl;
     private String qrCodeUrl;
+    int orderID;
+
+    public int getOrderID() {
+        return orderID;
+    }
+
+    public void setOrderID(int orderID) {
+        this.orderID = orderID;
+    }
 
     public String getPaymentUrl() {
         return paymentUrl;

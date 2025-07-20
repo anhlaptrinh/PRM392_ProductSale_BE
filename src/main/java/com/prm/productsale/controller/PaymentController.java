@@ -1,7 +1,10 @@
 package com.prm.productsale.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prm.productsale.dto.request.MomoIpnRequest;
 import com.prm.productsale.dto.response.BaseResponse;
 import com.prm.productsale.dto.response.PaymentResponse;
+import com.prm.productsale.dto.response.PaymentSuccessResponse;
 import com.prm.productsale.entity.OrderEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
@@ -10,6 +13,7 @@ import com.prm.productsale.services.MomoPaymentService;
 import com.prm.productsale.services.OrderServices;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,9 +58,14 @@ public class PaymentController {
      */
     @Operation(summary = "Handle MoMo IPN Callback")
     @PostMapping("/momo-ipn")
-    public ResponseEntity<?> handleMomoCallback(@RequestBody Map<String, String> callbackParams) {
+    public ResponseEntity<?> handleMomoCallback(@RequestBody String rawJson) {
+        System.out.println("🔔 MoMo IPN JSON (raw):\n" + rawJson);
+
         try {
-            momoService.handleCallback(callbackParams);
+            // Chuyển sang dùng DTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            MomoIpnRequest request = objectMapper.readValue(rawJson, MomoIpnRequest.class);
+            momoService.handleCallback(request);
             return ResponseEntity.ok("IPN received successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("IPN failed: " + e.getMessage());
@@ -66,9 +75,16 @@ public class PaymentController {
     /**
      * (Tùy chọn) Redirect user về site thành công
      */
-    @Operation(summary = "Handle MoMo Redirect Success")
-    @GetMapping("/momo-success")
-    public ResponseEntity<?> momoSuccess() {
-        return ResponseEntity.ok("Payment success! You can redirect to your frontend success page.");
+    @Operation(summary = "Check Payment Status by Order ID")
+    @GetMapping("/status/{orderId}")
+    public ResponseEntity<?> getPaymentStatus(@PathVariable int orderId) {
+        try {
+            PaymentSuccessResponse response = momoService.getPaymentStatus(orderId);
+            return ResponseEntity.ok(response);
+        } catch (AppException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body("Lỗi xử lý thanh toán: " + ex.getMessage());
+        }
     }
 }

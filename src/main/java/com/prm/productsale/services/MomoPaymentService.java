@@ -1,7 +1,14 @@
 package com.prm.productsale.services;
 
 import com.prm.productsale.config.MomoConfig;
+import com.prm.productsale.dto.request.MomoIpnRequest;
+import com.prm.productsale.dto.response.PaymentSuccessResponse;
 import com.prm.productsale.entity.OrderEntity;
+import com.prm.productsale.entity.PaymentEntity;
+import com.prm.productsale.exception.AppException;
+import com.prm.productsale.exception.ErrorCode;
+import com.prm.productsale.repository.OrderRepo;
+import com.prm.productsale.repository.PaymentRepo;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -12,6 +19,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +32,10 @@ public class MomoPaymentService {
 
     @Autowired
     private OrderServices orderService;
+    @Autowired
+    private OrderRepo orderRepo;
+    @Autowired
+    private PaymentRepo paymentRepo;
 
     public Map<String, Object> createMomoPayment(OrderEntity order) {
         String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
@@ -32,6 +44,7 @@ public class MomoPaymentService {
         String partnerCode = momoConfig.getPartnerCode();
         String accessKey = momoConfig.getAccessKey();
         String secretKey = momoConfig.getSecretKey();
+        String ipn = momoConfig.getIpnUrl();
 
         // ✅ Ép amount thành số nguyên VNĐ
         BigDecimal total = order.getCart().getTotal();
@@ -44,7 +57,7 @@ public class MomoPaymentService {
         String rawSignature = "accessKey=" + accessKey
                 + "&amount=" + amount
                 + "&extraData="
-                + "&ipnUrl=https://yourdomain.com/api/orders/momo/callback"
+                + "&ipnUrl=" + ipn
                 + "&orderId=" + orderId
                 + "&orderInfo=Thanh toan don hang"
                 + "&partnerCode=" + partnerCode
@@ -70,7 +83,7 @@ public class MomoPaymentService {
         body.put("orderId", orderId);
         body.put("orderInfo", "Thanh toan don hang");
         body.put("redirectUrl", "https://yourdomain.com/payment-success");
-        body.put("ipnUrl", "https://yourdomain.com/api/orders/momo/callback");
+        body.put("ipnUrl", ipn);
         body.put("requestType", "captureWallet");
         body.put("extraData", "");
         body.put("signature", signature);
@@ -109,28 +122,28 @@ public class MomoPaymentService {
         throw new RuntimeException("Failed to create MoMo payment: " + response.getBody());
     }
 
-    public void handleCallback(Map<String, String> callbackParams) {
-        String orderIdStr = callbackParams.get("orderId");
-        String resultCode = callbackParams.get("resultCode");
-        String receivedSignature = callbackParams.get("signature");
+    public void handleCallback(MomoIpnRequest callback) {
+        String orderIdStr = callback.getOrderId();
+        String resultCode = String.valueOf(callback.getResultCode());
+        String receivedSignature = callback.getSignature();
 
         if (orderIdStr == null || resultCode == null || receivedSignature == null) {
             throw new RuntimeException("Invalid callback data");
         }
 
-        String rawData = "accessKey=" + callbackParams.get("accessKey")
-                + "&amount=" + callbackParams.get("amount")
-                + "&extraData=" + callbackParams.get("extraData")
-                + "&message=" + callbackParams.get("message")
-                + "&orderId=" + callbackParams.get("orderId")
-                + "&orderInfo=" + callbackParams.get("orderInfo")
-                + "&orderType=" + callbackParams.get("orderType")
-                + "&partnerCode=" + callbackParams.get("partnerCode")
-                + "&payType=" + callbackParams.get("payType")
-                + "&requestId=" + callbackParams.get("requestId")
-                + "&responseTime=" + callbackParams.get("responseTime")
-                + "&resultCode=" + callbackParams.get("resultCode")
-                + "&transId=" + callbackParams.get("transId");
+        String rawData = "accessKey=" + momoConfig.getAccessKey()
+                + "&amount=" + callback.getAmount()
+                + "&extraData=" + callback.getExtraData()
+                + "&message=" + callback.getMessage()
+                + "&orderId=" + callback.getOrderId()
+                + "&orderInfo=" + callback.getOrderInfo()
+                + "&orderType=" + callback.getOrderType()
+                + "&partnerCode=" + callback.getPartnerCode()
+                + "&payType=" + callback.getPayType()
+                + "&requestId=" + callback.getRequestId()
+                + "&responseTime=" + callback.getResponseTime()
+                + "&resultCode=" + callback.getResultCode()
+                + "&transId=" + callback.getTransId();
 
         String serverSignature = hmacSHA256(rawData, momoConfig.getSecretKey());
 
@@ -138,18 +151,29 @@ public class MomoPaymentService {
             throw new RuntimeException("Invalid MoMo signature!");
         }
 
+        // ✅ Xử lý đơn hàng
         int orderId = Integer.parseInt(orderIdStr.split("-")[0]);
-        if ("0".equals(resultCode)) {
-            orderService.editStatus(orderId, "shipping");
-            OrderEntity order = orderService.getOrder(orderId);
-            int userId = order.getUser().getId();
-            // orderService.clearCartByUserId(userId); // nếu có
-            System.out.println("Order " + orderId + " shipping");
+        OrderEntity order = orderService.getOrder(orderId);
+        if (callback.getResultCode() == 0) {
+            // ✅ Thanh toán thành công
+            order.setOrderStatus("shipping");
+            orderRepo.save(order); // lưu thay đổi trạng thái đơn hàng
+
+            PaymentEntity payment = new PaymentEntity();
+            payment.setOrderID(orderId);
+            payment.setTotalAmount(order.getCart().getTotal());
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setPaymentStatus("PAID");
+
+            paymentRepo.save(payment);
+
+            System.out.println("✅ Order " + orderId + " đã thanh toán và đang giao hàng");
         } else {
             orderService.editStatus(orderId, "FAILED");
-            System.out.println("Order " + orderId + " FAILED");
+            System.out.println("❌ Order " + orderId + " thất bại");
         }
     }
+
 
     private String hmacSHA256(String data, String key) {
         try {
@@ -161,5 +185,24 @@ public class MomoPaymentService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to sign: " + e.getMessage());
         }
+    }
+    public PaymentSuccessResponse getPaymentStatus(int orderId) {
+        PaymentEntity payment = paymentRepo.findByOrderID(orderId);
+
+        if (payment == null) {
+            throw new AppException(ErrorCode.ORDER_NOT_EXIST); // hoặc tự định nghĩa lỗi "Payment Not Found"
+        }
+
+        if (!"PAID".equals(payment.getPaymentStatus())) {
+            throw new AppException(ErrorCode.INVALID_FORMAT); // hoặc định nghĩa "PAYMENT_NOT_COMPLETE"
+        }
+
+        PaymentSuccessResponse response = new PaymentSuccessResponse();
+        response.setOrderID(payment.getOrderID());
+        response.setTotalAmount(payment.getTotalAmount());
+        response.setPaymentDate(payment.getPaymentDate());
+        response.setPaymentStatus(payment.getPaymentStatus());
+
+        return response;
     }
 }
