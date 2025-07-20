@@ -73,8 +73,21 @@ public class OrderImp implements OrderServices {
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXIST));
         order.setUser(user);
-        CartEntity cart = cartRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+        List<CartEntity> activeCarts = cartRepository.findByUser_IdAndStatus(user.getId(), "ACTIVE");
+
+        if (activeCarts.isEmpty()) {
+            throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+        if (activeCarts.size() > 1) {
+                // Bạn có thể log hoặc xử lý tùy ý
+                System.out.println("⚠ Warning: Có nhiều hơn 1 cart ACTIVE cho user ID " + user.getId());
+        }
+
+        CartEntity cart = activeCarts.get(0);
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new AppException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+
         order.setCart(cart);
         order.setPmMethod(request.getPaymentMethod());
         order.setBill(user.getAddress());
