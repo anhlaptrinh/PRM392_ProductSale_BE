@@ -113,6 +113,12 @@ public class ProductImp implements ProductServices {
                 case "price_desc" -> products = products.stream()
                         .sorted(Comparator.comparing(ProductEntity::getPrice).reversed())
                         .toList();
+                case "rating_asc" -> products = products.stream()
+                        .sorted(Comparator.comparing(p -> calculateRatingAverage(p.getId())))
+                        .toList();
+                case "rating_desc" -> products = products.stream()
+                        .sorted(Comparator.comparing((ProductEntity p) -> calculateRatingAverage(p.getId())).reversed())
+                        .toList();
                 default -> throw new AppException(ErrorCode.INVALID_SORT_TYPE);
             }
         }
@@ -121,6 +127,8 @@ public class ProductImp implements ProductServices {
         List<ProductResponse> responseList = products.stream()
                 .map(product -> {
                     ProductResponse response = productMapper.toProductResponse(product);
+                    response.setRatingAverage(calculateRatingAverage(product.getId()));
+
                     wishlistRepo.findByUserIdAndProductId(user.getId(), product.getId())
                             .ifPresentOrElse(
                                     wishlist -> {
@@ -129,7 +137,7 @@ public class ProductImp implements ProductServices {
                                     },
                                     () -> {
                                         response.setFavorite(false);
-                                        response.setWishlistId(null);
+                                        response.setWishlistId(-1);
                                     }
                             );
                     return response;
@@ -137,7 +145,13 @@ public class ProductImp implements ProductServices {
 
         return responseList;
     }
+    private float calculateRatingAverage(int productId) {
+        List<ReviewEntity> reviews = reviewRepo.findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(productId);
+        if (reviews == null || reviews.isEmpty()) return 0f;
 
+        int sum = reviews.stream().mapToInt(ReviewEntity::getRating).sum();
+        return (float) sum / reviews.size();
+    }
     // =========================
     // 2. Các method "Create" (POST)
     // =========================

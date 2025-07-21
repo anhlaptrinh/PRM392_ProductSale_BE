@@ -41,7 +41,6 @@ public class NotificationScheduler {
                 notificationService.sendNotificationToToken(token, title, body);
             }
         }
-
-        System.out.println("✅ Đã gửi notification nhắc giỏ hàng đến users có sản phẩm trong giỏ.");
+//        System.out.println("✅ Đã gửi notification nhắc giỏ hàng đến users có sản phẩm trong giỏ.");
     }
 }

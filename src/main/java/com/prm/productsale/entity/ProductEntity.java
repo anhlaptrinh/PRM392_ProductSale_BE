@@ -47,6 +47,7 @@ public class ProductEntity {
     @OneToMany(mappedBy = "product")
     List<WishlistEntity> wishlist;
 
-
+    @Transient
+    Float ratingAverage;
 
 }
