@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface ReviewReplyRepo extends JpaRepository<ReviewReplyEntity, Integer> {
   List<ReviewReplyEntity> findByReviewID(int reviewId);
-
 }

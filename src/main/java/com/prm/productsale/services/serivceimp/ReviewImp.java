@@ -9,6 +9,7 @@ import com.prm.productsale.entity.*;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.mapper.ReviewMapper;
+import com.prm.productsale.repository.ReviewReplyRepo;
 import com.prm.productsale.repository.ReviewRepo;
 import com.prm.productsale.repository.ReviewVoteRepo;
 import com.prm.productsale.services.ReviewServices;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class ReviewImp implements ReviewServices {
 
   @Autowired private ReviewRepo reviewRepo;
+  @Autowired private ReviewReplyRepo replyRepo;
   @Autowired private ReviewVoteRepo voteRepo;
   @Autowired private ReviewMapper reviewMapper;
   @Autowired private UserServicesImp userServicesImp;
@@ -128,6 +130,8 @@ public class ReviewImp implements ReviewServices {
     }
 
     review.setDeleted(true);
+    List<ReviewReplyEntity> replyList = replyRepo.findByReviewID(reviewID);
+    replyRepo.deleteAll(replyList);
     reviewRepo.save(review);
   }
 }
