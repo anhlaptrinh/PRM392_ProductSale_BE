@@ -20,4 +20,5 @@ public class ProductResponse {
     String categoryName;
     Boolean favorite;
     Integer wishlistId;
+    Float ratingAverage;
 }

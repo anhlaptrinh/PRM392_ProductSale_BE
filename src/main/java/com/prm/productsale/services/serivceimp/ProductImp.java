@@ -4,34 +4,38 @@ import com.prm.productsale.dto.request.ProductRequest;
 import com.prm.productsale.dto.response.ProductResponse;
 import com.prm.productsale.entity.CategoryEntity;
 import com.prm.productsale.entity.ProductEntity;
+import com.prm.productsale.entity.ReviewEntity;
+import com.prm.productsale.entity.UserEntity;
 import com.prm.productsale.exception.AppException;
 import com.prm.productsale.exception.ErrorCode;
 import com.prm.productsale.mapper.ProductMapper;
 import com.prm.productsale.repository.CategoryRepo;
 import com.prm.productsale.repository.ProductRepo;
+import com.prm.productsale.repository.ReviewRepo;
+import com.prm.productsale.repository.WishlistRepo;
+import com.prm.productsale.services.LoginServices;
 import com.prm.productsale.services.ProductServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.Comparator;
-import com.prm.productsale.entity.WishlistEntity;
-import com.prm.productsale.entity.UserEntity;
-import com.prm.productsale.repository.WishlistRepo;
-import com.prm.productsale.services.LoginServices;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductImp implements ProductServices {
+
     @Autowired
-    ProductRepo productRepo;
+    private ProductRepo productRepo;
     @Autowired
-    CategoryRepo categoryRepo;
+    private CategoryRepo categoryRepo;
     @Autowired
-    ProductMapper productMapper;
+    private ReviewRepo reviewRepo;
+    @Autowired
+    private ProductMapper productMapper;
     @Autowired
     private WishlistRepo wishlistRepo;
-
     @Autowired
     private LoginServices loginServices;
 
@@ -50,7 +54,21 @@ public class ProductImp implements ProductServices {
     public ProductResponse getProductByID(int productID) {
         ProductEntity entity = productRepo.findById(productID)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXIST_EXCEPTION));
-        return productMapper.toProductResponse(entity);
+        ProductResponse response = productMapper.toProductResponse(entity);
+
+        // Tính trung bình của rating
+        List<ReviewEntity> reviewEntities = reviewRepo.findByProduct_IdAndIsDeletedFalseOrderByCreatedAtDesc(productID);
+        Float ratingAverage = 0f;
+        if (reviewEntities != null && !reviewEntities.isEmpty()) {
+            int total = 0;
+            for (ReviewEntity item : reviewEntities) {
+                total += item.getRating();
+            }
+            ratingAverage = (float) total / reviewEntities.size();
+        }
+        response.setRatingAverage(ratingAverage);
+
+        return response;
     }
     @Override
     public List<ProductResponse> filterProducts(Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice, String sort) {
