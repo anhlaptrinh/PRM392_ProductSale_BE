@@ -12,4 +12,5 @@ import java.util.List;
 public class CategoryResponse {
   int categoryID;
   String categoryName;
+  String imageURL;
 }

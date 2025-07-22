@@ -50,6 +50,7 @@ public class CategoryImp implements CategoryServices {
     CategoryEntity categoryEntity = categoryMapper.toCategoryEntity(request);
 
     CategoryEntity saved = categoryRepo.save(categoryEntity);
+    if(saved.getImageURL() == null) saved.setImageURL("");
 
     return categoryMapper.toCategoryResponse(saved);
   }

@@ -47,7 +47,7 @@ public class MomoPaymentService {
         String ipn = momoConfig.getIpnUrl();
 
         // ✅ Ép amount thành số nguyên VNĐ
-        BigDecimal total = order.getCart().getTotal();
+        BigDecimal total = order.getCart().getTotal().multiply(BigDecimal.valueOf(24000));
         String amount = String.valueOf(total.intValue());  // Ví dụ 50.00 ➜ 50
 
         String requestId = UUID.randomUUID().toString();
@@ -155,9 +155,6 @@ public class MomoPaymentService {
         int orderId = Integer.parseInt(orderIdStr.split("-")[0]);
         OrderEntity order = orderService.getOrder(orderId);
         if (callback.getResultCode() == 0) {
-            // ✅ Thanh toán thành công
-            order.setOrderStatus("shipping");
-            orderRepo.save(order); // lưu thay đổi trạng thái đơn hàng
 
             PaymentEntity payment = new PaymentEntity();
             payment.setOrderID(orderId);
