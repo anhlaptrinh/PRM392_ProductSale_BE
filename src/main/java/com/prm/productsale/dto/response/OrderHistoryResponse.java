@@ -13,6 +13,5 @@ public class OrderHistoryResponse {
     private int id;
     private String date;
     private BigDecimal total;
-    private boolean shipped;
-    private boolean arrived;
+    private String status;
 }

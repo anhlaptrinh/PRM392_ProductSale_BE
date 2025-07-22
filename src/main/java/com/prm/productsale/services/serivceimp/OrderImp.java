@@ -92,14 +92,7 @@ public class OrderImp implements OrderServices {
         order.setPmMethod(request.getPaymentMethod());
         order.setBill(user.getAddress());
         order.setOrderDate(LocalDateTime.now());
-        // Logic payment method
-        if ("COD".equalsIgnoreCase(request.getPaymentMethod())) {
-            order.setOrderStatus("shipping");
-        } else if ("MOMO".equalsIgnoreCase(request.getPaymentMethod())) {
-            order.setOrderStatus("pending");
-        } else {
-            order.setOrderStatus("pending");
-        }
+        order.setOrderStatus("pending");
 
         return orderRepo.save(order);
     }
@@ -132,9 +125,9 @@ public class OrderImp implements OrderServices {
     }
 
     @Override
-    public void updateOrder(int orderId) {
+    public void updateOrder(int orderId, String status) {
         OrderEntity order = orderRepo.getReferenceById(orderId);
-        order.setOrderStatus("arrived");
+        order.setOrderStatus(status);
         orderRepo.save(order);
     }
 

@@ -9,17 +9,11 @@ public class OrderHistoryMapper {
     public static OrderHistoryResponse toResponse(OrderEntity entity) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-        String orderStatus = entity.getOrderStatus().toLowerCase();
-
-        boolean shipped = "shipping".equals(orderStatus);
-        boolean arrived = "arrived".equals(orderStatus);
-
         return new OrderHistoryResponse(
                 entity.getId(),
                 entity.getOrderDate().format(formatter),
                 entity.getCart().getTotal(),
-                shipped,
-                arrived
+                entity.getOrderStatus() // PENDING, SHIPPING, ARRIVED, CANCELLED
         );
     }
 }

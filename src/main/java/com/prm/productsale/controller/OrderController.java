@@ -153,8 +153,8 @@ public class OrderController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id) {
-        orderService.updateOrder(id);
+    public ResponseEntity<?> updateOrder(@PathVariable int id,@RequestParam String status) {
+        orderService.updateOrder(id , status);
         return ResponseEntity.ok(BaseResponse.getResponse("Order updated", null));
     }
 
