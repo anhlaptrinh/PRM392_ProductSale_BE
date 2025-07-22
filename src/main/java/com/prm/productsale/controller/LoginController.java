@@ -183,9 +183,8 @@ public class LoginController {
           }
   )
   @PutMapping("/password-change")
-  @PreAuthorize("hasRole('MEMBER')")
-  public ResponseEntity<?> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword){
-    userServicesImp.changePassword(oldPassword, newPassword);
+  public ResponseEntity<?> changePassword(@RequestParam String email, @RequestParam String oldPassword, @RequestParam String newPassword){
+    userServicesImp.changePassword(email, oldPassword, newPassword);
     BaseResponse response = new BaseResponse();
     response.setCode(200);
     response.setMessage("Changed password successful");

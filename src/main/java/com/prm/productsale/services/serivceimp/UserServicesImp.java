@@ -10,6 +10,7 @@ import com.prm.productsale.repository.UserRepo;
 import com.prm.productsale.dto.request.UserRequest;
 import com.prm.productsale.services.MailServices;
 import com.prm.productsale.services.UserServices;
+import com.prm.productsale.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,8 @@ public class UserServicesImp implements UserServices {
   MailServices mailServices;
   @Autowired
   MailServicesImp mailServicesImp;
+  @Autowired
+  private UserValidator userValidator;
 
   // =========================
   // 1. Các method "Read" / "List" (GET)
@@ -90,10 +93,10 @@ public class UserServicesImp implements UserServices {
   // =========================
 
   @Override
-  public void changePassword(String oldPassword, String newPassword) {
-    UserResponse userResponse = getMyInfo();
+  public void changePassword(String email,String oldPassword, String newPassword) {
+    Optional<UserEntity> user = userRepo.findByEmail(email);
+    if(user.isEmpty()) throw new AppException(ErrorCode.USER_NOT_EXIST);
 
-    Optional<UserEntity> user = userRepo.findByEmail(userResponse.getEmail());
     UserEntity userEntity = user.get();
     if(passwordEncoder.matches(oldPassword, userEntity.getPassword())) {
       userEntity.setPassword(passwordEncoder.encode(newPassword));
