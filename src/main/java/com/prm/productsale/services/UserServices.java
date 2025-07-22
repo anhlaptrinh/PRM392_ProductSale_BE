@@ -10,7 +10,7 @@ public interface UserServices {
   List<UserResponse> getAllUsers();
   UserResponse getUserByID(int userID);
   void register(UserRequest request, String verificationCode);
-  void changePassword(String oldPassword, String newPassword);
+  void changePassword(String email, String oldPassword, String newPassword);
   UserResponse updateUser(UserRequest userRequest);
   Boolean forgotPassword(String email);
 }
