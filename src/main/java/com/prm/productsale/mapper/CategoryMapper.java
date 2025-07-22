@@ -27,7 +27,7 @@ public interface CategoryMapper {
 
   @Mapping(target = "categoryID", ignore = true)
   @Mapping(target = "products", ignore = true)
-  CategoryEntity toCategoryEntity(CategoryRequest categoryRequest);
+  CategoryEntity toCategoryEntity(CategoryRequest request);
 
   @Mapping(target = "categoryID", ignore = true)
   @Mapping(target = "products", ignore = true)
