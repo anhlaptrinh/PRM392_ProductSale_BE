@@ -61,6 +61,7 @@ public class OrderImp implements OrderServices {
         }
         OrderEntity order = orderRepo.findById(orderId).orElseThrow(()->new AppException(ErrorCode.ORDER_NOT_EXIST));
         order.setOrderStatus(status);
+        order.setOrderDate(LocalDateTime.now());
         orderRepo.save(order);
     }
     @Autowired
