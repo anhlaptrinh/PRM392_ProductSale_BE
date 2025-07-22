@@ -54,9 +54,9 @@ public class OrderImp implements OrderServices {
     @PreAuthorize("hasRole('ADMIN')")
     public void editStatus(int orderId,String status) {
         if (!status.equalsIgnoreCase("pending") &&
-                !status.equalsIgnoreCase("shipped") &&
-                !status.equalsIgnoreCase("cancel")&&
-                !status.equalsIgnoreCase("delivered")) {
+                !status.equalsIgnoreCase("shipping") &&
+                !status.equalsIgnoreCase("cancelled")&&
+                !status.equalsIgnoreCase("arrived")) {
             throw new AppException(ErrorCode.INVALID_FORMAT);
         }
         OrderEntity order = orderRepo.findById(orderId).orElseThrow(()->new AppException(ErrorCode.ORDER_NOT_EXIST));
