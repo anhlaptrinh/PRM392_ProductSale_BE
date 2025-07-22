@@ -155,9 +155,6 @@ public class MomoPaymentService {
         int orderId = Integer.parseInt(orderIdStr.split("-")[0]);
         OrderEntity order = orderService.getOrder(orderId);
         if (callback.getResultCode() == 0) {
-            // ✅ Thanh toán thành công
-            order.setOrderStatus("shipping");
-            orderRepo.save(order); // lưu thay đổi trạng thái đơn hàng
 
             PaymentEntity payment = new PaymentEntity();
             payment.setOrderID(orderId);

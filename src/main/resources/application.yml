@@ -49,6 +49,6 @@ momo:
   access-key: F8BBA842ECF85
   secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
   redirect-url: https://your-app.com/payment-success
-  ipn-url: https://d8ac63e398de.ngrok-free.app/api/payment/momo-ipn
+  ipn-url: https://0d01c37e408b.ngrok-free.app/api/payment/momo-ipn
   request-type: captureWallet
 
