@@ -46,10 +46,38 @@ public class ProductImp implements ProductServices {
     @Override
     public List<ProductResponse> getAllProducts() {
         List<ProductEntity> productEntityList = productRepo.findAll();
-        if(productEntityList.isEmpty()) throw new AppException(ErrorCode.PRODUCT_LIST_NOT_EXIST_EXCEPTION);
-        return productMapper.toListProductResponse(productEntityList);
-    }
+        if (productEntityList.isEmpty()) {
+            throw new AppException(ErrorCode.PRODUCT_LIST_NOT_EXIST_EXCEPTION);
+        }
 
+        // Lấy user hiện tại
+        UserEntity user = loginServices.getUser();
+
+        // Map từng ProductEntity sang ProductResponse, thêm thông tin rating + wishlist
+        List<ProductResponse> responseList = productEntityList.stream().map(product -> {
+            ProductResponse response = productMapper.toProductResponse(product);
+
+            // Tính rating trung bình
+            response.setRatingAverage(calculateRatingAverage(product.getId()));
+
+            // Xử lý wishlist
+            wishlistRepo.findByUserIdAndProductId(user.getId(), product.getId())
+                    .ifPresentOrElse(
+                            wishlist -> {
+                                response.setFavorite(true);
+                                response.setWishlistId(wishlist.getId());
+                            },
+                            () -> {
+                                response.setFavorite(false);
+                                response.setWishlistId(0); // hoặc -1 tùy bạn chọn
+                            }
+                    );
+
+            return response;
+        }).toList();
+
+        return responseList;
+    }
     @Override
     public ProductResponse getProductByID(int productID) {
         ProductEntity entity = productRepo.findById(productID)
