@@ -22,6 +22,8 @@ public class CategoryEntity {
     int categoryID;
     @Column(name = "CategoryName")
     String categoryName;
+    @Column(name = "imageUrl")
+    String imageURL;
 
     @OneToMany(mappedBy = "category")
     List<ProductEntity> products;
