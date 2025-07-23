@@ -20,6 +20,6 @@ public interface OrderServices {
     void markCartInactive(CartEntity cart);
     List<OrderHistoryResponse> getOrdersByUserId(int userId);
     List<CartItemEntity> getCartItemsByOrderId(int orderId);
-    void updateOrder(int orderId, String status);
+    void updateOrder(int orderId, String status,String dateStr);
     void reorder(ReorderRequest request);
 }
