@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,9 +127,17 @@ public class OrderImp implements OrderServices {
     }
 
     @Override
-    public void updateOrder(int orderId, String status) {
+    public void updateOrder(int orderId, String status, String dateStr) {
         OrderEntity order = orderRepo.getReferenceById(orderId);
         order.setOrderStatus(status);
+
+        try {
+            LocalDateTime date = LocalDateTime.parse(dateStr); // ISO 8601
+            order.setOrderDate(date);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format, expected ISO 8601 format (e.g. 2025-07-23T15:30:00)");
+        }
+
         orderRepo.save(order);
     }
 

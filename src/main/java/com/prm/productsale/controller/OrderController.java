@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -153,8 +154,8 @@ public class OrderController {
             }
     )
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id,@RequestParam String status) {
-        orderService.updateOrder(id , status);
+    public ResponseEntity<?> updateOrder(@PathVariable int id,@RequestParam String status, @RequestParam String date) {
+        orderService.updateOrder(id , status, date);
         return ResponseEntity.ok(BaseResponse.getResponse("Order updated", null));
     }
 
